@@ -33,7 +33,7 @@ public class CameraHelper {
 	public Vector2 getPosition() { return position; }
 
 	public void addZoom (float amount) { setZoom(zoom + amount); }
-	public void setZoom(float amount) {
+	public void setZoom(float zoom) {
 		this.zoom = MathUtils.clamp(zoom, MAX_ZOOM_IN, MAX_ZOOM_OUT);
 	}
 	public float getZoom() { return zoom; }
