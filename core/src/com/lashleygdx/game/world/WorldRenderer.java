@@ -6,44 +6,61 @@ import com.badlogic.gdx.utils.Disposable;
 import com.lashleygdx.game.util.Constants;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
-public class WorldRenderer implements Disposable {
-
+/**
+ * World Renderer draws assets/objects/world
+ * @author Chris Lashley
+ */
+public class WorldRenderer implements Disposable
+{
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private WorldController worldController;
 
-	public WorldRenderer (WorldController worldController) {
+	// get or create an instance of itself if needed
+	public WorldRenderer (WorldController worldController)
+	{
 		this.worldController = worldController;
 		init();
 	}
 
-	private void init () {
+	// initialize an instance of itself
+	private void init ()
+	{
 		batch = new SpriteBatch();
 		camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 		camera.position.set(0, 0, 0);
 		camera.update();
 	}
 
-	public void render () {
+	// render assets
+	public void render ()
+	{
 		renderTestObjects();
 	}
 
-	private void renderTestObjects() {
+	// render test objects
+	private void renderTestObjects()
+	{
 		worldController.cameraHelper.applyTo(camera);
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		for (Sprite sprite : worldController.testSprites) {
+		for (Sprite sprite : worldController.testSprites)
+		{
 			sprite.draw(batch);
 		}
 		batch.end();
 	}
 
-	public void resize (int width, int height) {
+	// resizes camera window
+	public void resize (int width, int height)
+	{
 		camera.viewportWidth = (Constants.VIEWPORT_HEIGHT / height) * width;
 		camera.update();
 	}
 
-	@Override public void dispose () {
+	// free unused asset memory
+	@Override public void dispose ()
+	{
 		batch.dispose();
 	}
 }

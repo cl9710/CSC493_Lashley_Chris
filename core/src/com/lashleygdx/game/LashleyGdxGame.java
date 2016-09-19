@@ -6,18 +6,29 @@ import com.lashleygdx.game.world.WorldController;
 import com.lashleygdx.game.world.WorldRenderer;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.assets.AssetManager;
+import com.lashleygdx.game.world.Assets;
 
-public class LashleyGdxGame implements ApplicationListener {
-
+/**
+ * LashleyGdxGame is the "CanyonBunnyMain" class
+ * controls the game
+ * @author Chris Lashley
+ */
+public class LashleyGdxGame implements ApplicationListener
+{
 	private static final String TAG = LashleyGdxGame.class.getName();
 	private WorldController worldController;
 	private WorldRenderer worldRenderer;
 	private boolean paused;
 
+	// create a new instance of the game
 	@Override
-	public void create () {
+	public void create ()
+	{
 		// Set Libgdx log level to DEBUG
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+		// Load assets
+		Assets.instance.init(new AssetManager());
 		// Initialize controller and renderer
 		worldController = new WorldController();
 		worldRenderer = new WorldRenderer(worldController);
@@ -25,8 +36,10 @@ public class LashleyGdxGame implements ApplicationListener {
 		paused = false;
 	}
 
+	// draws the game
 	@Override
-	public void render () {
+	public void render ()
+	{
 		// Do not update game world when paused.
 		if (!paused) {
 			// Update game world by the time that has passed since last rendered frame.
@@ -41,23 +54,33 @@ public class LashleyGdxGame implements ApplicationListener {
 		worldRenderer.render();
 	}
 
+	// control game window size
 	@Override
-	public void resize (int width, int height) {
+	public void resize (int width, int height)
+	{
 		worldRenderer.resize(width, height);
 	}
 
+	// pause game
 	@Override
-	public void pause () {
+	public void pause ()
+	{
 		paused = true;
 	}
 
+	// unpause game
 	@Override
-	public void resume () {
+	public void resume ()
+	{
 		paused = false;
 	}
 
+	// free memory of unused assets
 	@Override
-	public void dispose () {
+	public void dispose ()
+	{
 		worldRenderer.dispose();
+		Assets.instance.dispose();
+
 	}
 }

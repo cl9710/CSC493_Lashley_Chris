@@ -10,36 +10,47 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
 
-public class WorldController extends InputAdapter{
-
+/**
+ * World Controller controls all the objects/assets in the game
+ * @author Chris Lashley
+ */
+public class WorldController extends InputAdapter
+{
 	private static final String TAG = WorldController.class.getName();
 	public Sprite[] testSprites;
 	public int selectedSprite;
 	public CameraHelper cameraHelper;
 
-	public WorldController () {
+	// get instance of itself
+	public WorldController ()
+	{
 		init();
 	}
 
-	private void init () {
+	// create an instance of itself
+	private void init ()
+	{
 		Gdx.input.setInputProcessor(this);
 		cameraHelper = new CameraHelper();
 		initTestObjects();
 	}
 
-	private void initTestObjects() {
+	// create test sprites/objects
+	private void initTestObjects()
+	{
 		// Create new array for 5 sprites
 		testSprites = new Sprite[5];
-		// Create empty POT-sized Pizmap with 8 bit RGBA pixel data
-		int width = 32;
-		int height = 32;
-		Pixmap pixmap = createProceduralPixmap(width, height);
-		// Create a new texture from pixmap data
-		Texture texture = new Texture(pixmap);
-		// Create new sprites using the just create texture
+		// Create list of texture regions
+		Array<TextureRegion> regions = new Array<TextureRegion>();
+		regions.add(Assets.instance.bunny.head);
+		regions.add(Assets.instance.feather.feather);
+		regions.add(Assets.instance.goldCoin.goldCoin);
+		// Create new sprites using a random texture region
 		for (int i = 0; i < testSprites.length; i++) {
-			Sprite spr = new Sprite(texture);
+			Sprite spr = new Sprite(regions.random());
 			// Define sprite seize to be 1m x 1m in game world
 			spr.setSize(1, 1);
 			// Set origin to sprite's center
@@ -55,7 +66,9 @@ public class WorldController extends InputAdapter{
 		selectedSprite = 0;
 	}
 
-	private Pixmap createProceduralPixmap (int width, int height) {
+/**	// create test square pixels
+	private Pixmap createProceduralPixmap (int width, int height)
+	{
 		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
 		// Fill square with red color at 50% opacity
 		pixmap.setColor(1, 0, 0, .5f);
@@ -68,15 +81,17 @@ public class WorldController extends InputAdapter{
 		pixmap.setColor(0, 1, 1, 1);
 		pixmap.drawRectangle(0, 0, width, height);
 		return pixmap;
-	}
+	}*/
 
-	public void update (float deltaTime) {
+	public void update (float deltaTime)
+	{
 		handleDebugInput(deltaTime);
 		updateTestObjects(deltaTime);
 		cameraHelper.update(deltaTime);
 	}
 
-	private void handleDebugInput (float deltaTime) {
+	private void handleDebugInput (float deltaTime)
+	{
 		if (Gdx.app.getType() != ApplicationType.Desktop) return;
 
 		// Selected Sprite Controls
@@ -105,17 +120,23 @@ public class WorldController extends InputAdapter{
 		if (Gdx.input.isKeyPressed(Keys.SLASH)) cameraHelper.setZoom(1);
 	}
 
-	private void moveSelectedSprite (float x, float y) {
+	// move sprite
+	private void moveSelectedSprite (float x, float y)
+	{
 		testSprites[selectedSprite].translate(x, y);
 	}
 
-	private void moveCamera (float x, float y) {
+	// move camera
+	private void moveCamera (float x, float y)
+	{
 		x += cameraHelper.getPosition().x;
 		y += cameraHelper.getPosition().y;
 		cameraHelper.setPosition(x, y);
 	}
 
-	private void updateTestObjects (float deltaTime) {
+	// sprite animation
+	private void updateTestObjects (float deltaTime)
+	{
 		// Get current rotation from selected sprite
 		float rotation = testSprites[selectedSprite].getRotation();
 		rotation += 90 * deltaTime;
@@ -125,8 +146,10 @@ public class WorldController extends InputAdapter{
 		testSprites[selectedSprite].setRotation(rotation);;
 	}
 
+	// keyboard controls
 	@Override
-	public boolean keyUp (int keycode) {
+	public boolean keyUp (int keycode)
+	{
 		// Reset game world
 		if (keycode == Keys.R) {
 			init();
