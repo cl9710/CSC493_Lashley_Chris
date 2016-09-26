@@ -1,0 +1,89 @@
+
+murderkitty.pack.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+cat
+  rotate: false
+  xy: 2, 2
+  size: 542, 474
+  orig: 542, 474
+  offset: 0, 0
+  index: -1
+frog
+  rotate: false
+  xy: 2, 893
+  size: 67, 72
+  orig: 67, 72
+  offset: 0, 0
+  index: -1
+ground
+  rotate: false
+  xy: 171, 805
+  size: 32, 160
+  orig: 32, 160
+  offset: 0, 0
+  index: -1
+house
+  rotate: false
+  xy: 239, 802
+  size: 128, 163
+  orig: 128, 163
+  offset: 0, 0
+  index: -1
+rock_edge
+  rotate: false
+  xy: 369, 609
+  size: 63, 356
+  orig: 63, 356
+  offset: 0, 0
+  index: -1
+rock_middle
+  rotate: false
+  xy: 434, 609
+  size: 86, 356
+  orig: 86, 356
+  offset: 0, 0
+  index: -1
+thorn
+  rotate: false
+  xy: 522, 478
+  size: 478, 487
+  orig: 478, 487
+  offset: 0, 0
+  index: -1
+tree1
+  rotate: false
+  xy: 71, 889
+  size: 48, 76
+  orig: 48, 76
+  offset: 0, 0
+  index: -1
+tree2
+  rotate: false
+  xy: 121, 889
+  size: 48, 76
+  orig: 48, 76
+  offset: 0, 0
+  index: -1
+water_overlay
+  rotate: false
+  xy: 205, 805
+  size: 32, 160
+  orig: 32, 160
+  offset: 0, 0
+  index: -1
+
+murderkitty.pack2.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+bird
+  rotate: false
+  xy: 2, 2
+  size: 716, 632
+  orig: 716, 632
+  offset: 0, 0
+  index: -1
