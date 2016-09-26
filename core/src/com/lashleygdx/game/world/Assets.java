@@ -10,6 +10,7 @@ import com.lashleygdx.game.util.Constants;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 /**
  * Assets manages game assets
@@ -24,13 +25,41 @@ public class Assets implements Disposable, AssetErrorListener
 	private AssetManager assetManager;
 
 	// singleton: prevent instantiation from other classes
-	private Assets() {}
+	private Assets()
+	{
+
+	}
 
 	public AssetBunny bunny;
 	public AssetRock rock;
 	public AssetGoldCoin goldCoin;
 	public AssetFeather feather;
 	public AssetLevelDecoration levelDecoration;
+
+	public AssetFonts fonts;
+
+	public class AssetFonts
+	{
+		public final BitmapFont defaultSmall;
+		public final BitmapFont defaultNormal;
+		public final BitmapFont defaultBig;
+
+		public AssetFonts()
+		{
+			// create three fonts using Libgdx 15px bitmap font
+			defaultSmall = new BitmapFont (Gdx.files.internal("images/arial-15.fnt"), true);
+			defaultNormal = new BitmapFont (Gdx.files.internal("images/arial-15.fnt"), true);
+			defaultBig = new BitmapFont (Gdx.files.internal("images/arial-15.fnt"), true);
+			//set font sizes
+			defaultSmall.getData().setScale(0.75f);
+			defaultNormal.getData().setScale(1.0f);
+			defaultBig.getData().setScale(2.0f);
+			// enable linear texture filtering for smooth fonts
+			defaultSmall.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			defaultNormal.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			defaultBig.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
+	}
 
 	// instantiate an instance of itself
 	public void init (AssetManager assetManager)
@@ -58,6 +87,7 @@ public class Assets implements Disposable, AssetErrorListener
 	}
 
 	// create game resource objects
+	fonts = new AssetFonts();
 	bunny = new AssetBunny(atlas);
 	rock = new AssetRock(atlas);
 	goldCoin = new AssetGoldCoin(atlas);
@@ -70,6 +100,9 @@ public class Assets implements Disposable, AssetErrorListener
 	public void dispose()
 	{
 		assetManager.dispose();
+		fonts.defaultSmall.dispose();
+		fonts.defaultNormal.dispose();
+		fonts.defaultBig.dispose();
 	}
 
 	// error handling
@@ -128,18 +161,18 @@ public class Assets implements Disposable, AssetErrorListener
 
 	public class AssetLevelDecoration
 	{
-		public final AtlasRegion cloud1;
-		public final AtlasRegion cloud2;
-		public final AtlasRegion cloud3;
+		public final AtlasRegion cloud01;
+		public final AtlasRegion cloud02;
+		public final AtlasRegion cloud03;
 		public final AtlasRegion mountainLeft;
 		public final AtlasRegion mountainRight;
 		public final AtlasRegion waterOverlay;
 
 		public AssetLevelDecoration (TextureAtlas atlas)
 		{
-			cloud1 = atlas.findRegion("cloud1");
-			cloud2 = atlas.findRegion("cloud2");
-			cloud3 = atlas.findRegion("cloud3");
+			cloud01 = atlas.findRegion("cloud01");
+			cloud02 = atlas.findRegion("cloud02");
+			cloud03 = atlas.findRegion("cloud03");
 			mountainLeft = atlas.findRegion("mountain_left");
 			mountainRight = atlas.findRegion("mountain_right");
 			waterOverlay = atlas.findRegion("water_overlay");
