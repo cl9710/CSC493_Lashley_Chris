@@ -7,9 +7,11 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Disposable;
 import com.lashleygdx.game.util.Constants;
+import com.lashleygdx.game.world.Assets.AssetFonts;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 /**
  * Assets manages game assets
@@ -31,7 +33,33 @@ public class Assets implements Disposable, AssetErrorListener
 	public AssetBird bird;
 	public AssetFrog frog;
 	public AssetRock rock;
+	public AssetHouse house;
 	public AssetLevelDecoration levelDecoration;
+
+	public AssetFonts fonts;
+
+	public class AssetFonts
+	{
+		public final BitmapFont defaultSmall;
+		public final BitmapFont defaultNormal;
+		public final BitmapFont defaultBig;
+
+		public AssetFonts()
+		{
+			// create three fonts using Libgdx 15px bitmap font
+			defaultSmall = new BitmapFont (Gdx.files.internal("images/arial-15.fnt"), true);
+			defaultNormal = new BitmapFont (Gdx.files.internal("images/arial-15.fnt"), true);
+			defaultBig = new BitmapFont (Gdx.files.internal("images/arial-15.fnt"), true);
+			//set font sizes
+			defaultSmall.getData().setScale(0.75f);
+			defaultNormal.getData().setScale(1.0f);
+			defaultBig.getData().setScale(2.0f);
+			// enable linear texture filtering for smooth fonts
+			defaultSmall.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			defaultNormal.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+			defaultBig.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
+	}
 
 	// instantiate an instance of itself
 	public void init (AssetManager assetManager)
@@ -59,6 +87,7 @@ public class Assets implements Disposable, AssetErrorListener
 	}
 
 	// create game resource objects
+	fonts = new AssetFonts();
 	cat = new AssetCat(atlas);
 	thorn = new AssetThorn(atlas);
 	rock = new AssetRock(atlas);
@@ -72,6 +101,9 @@ public class Assets implements Disposable, AssetErrorListener
 	public void dispose()
 	{
 		assetManager.dispose();
+		fonts.defaultSmall.dispose();
+		fonts.defaultNormal.dispose();
+		fonts.defaultBig.dispose();
 	}
 
 	// error handling
@@ -143,31 +175,31 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	// house sprite (goal)
+	public class AssetHouse
+	{
+		public final AtlasRegion house;
+
+		public AssetHouse (TextureAtlas atlas)
+		{
+			house = atlas.findRegion("house");
+		}
+	}
+
 	// level/background sprites
 	public class AssetLevelDecoration
 	{
-		public final AtlasRegion cloud1;
-		public final AtlasRegion cloud2;
-		public final AtlasRegion cloud3;
-		public final AtlasRegion mountainLeft;
-		public final AtlasRegion mountainRight;
 		public final AtlasRegion waterOverlay;
-		public final AtlasRegion house;
+		public final AtlasRegion ground;
 		public final AtlasRegion tree1;
 		public final AtlasRegion tree2;
 
 		public AssetLevelDecoration (TextureAtlas atlas)
 		{
-			cloud1 = atlas.findRegion("cloud1");
-			cloud2 = atlas.findRegion("cloud2");
-			cloud3 = atlas.findRegion("cloud3");
-			mountainLeft = atlas.findRegion("mountain_left");
-			mountainRight = atlas.findRegion("mountain_right");
 			waterOverlay = atlas.findRegion("water_overlay");
-			house = atlas.findRegion("house");
+			ground = atlas.findRegion("ground");
 			tree1 = atlas.findRegion("tree1");
 			tree2 = atlas.findRegion("tree2");
-
 		}
 	}
 }

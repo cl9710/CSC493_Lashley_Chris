@@ -32,7 +32,7 @@ public class DesktopLauncher
 		}
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "CanyonBunny";
+		config.title = "MurderKitty";
 		config.width = 800;
 		config.height = 480;
 
