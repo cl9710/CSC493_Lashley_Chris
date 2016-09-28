@@ -107,7 +107,7 @@ public class Level
 
 				}
 				// feather
-				if (BLOCK_TYPE.ITEM_FEATHER.sameColor(currentPixel))
+				else if (BLOCK_TYPE.ITEM_FEATHER.sameColor(currentPixel))
 				{
 
 				}
