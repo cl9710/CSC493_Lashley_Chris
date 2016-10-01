@@ -18,20 +18,34 @@ public class Clouds extends AbstractGameObject
 	private Array<TextureRegion> regClouds;
 	private Array<Cloud> clouds;
 
+	/**
+	 * individual cloud
+	 * @author Chris Lashley
+	 */
 	private class Cloud extends AbstractGameObject
 	{
 		private TextureRegion regCloud;
 
+		/**
+		 * constructor not specified so outside classes cant construct
+		 */
 		public Cloud()
 		{
 
 		}
 
+		/**
+		 * set cloud texture
+		 * @param region
+		 */
 		public void setRegion (TextureRegion region)
 		{
 			regCloud = region;
 		}
 
+		/**
+		 * draw cloud
+		 */
 		@Override
 		public void render(SpriteBatch batch)
 		{
@@ -42,12 +56,19 @@ public class Clouds extends AbstractGameObject
 		}
 	}
 
+	/**
+	 * constructor
+	 * @param length
+	 */
 	public Clouds (float length)
 	{
 		this.length = length;
 		init();
 	}
 
+	/**
+	 * create clouds to span the level
+	 */
 	private void init ()
 	{
 		dimension.set(3.0f, 1.5f);
@@ -67,6 +88,10 @@ public class Clouds extends AbstractGameObject
 		}
 	}
 
+	/**
+	 * create a cloud
+	 * @return cloud
+	 */
 	private Cloud spawnCloud ()
 	{
 		Cloud cloud = new Cloud();
@@ -83,6 +108,9 @@ public class Clouds extends AbstractGameObject
 		return cloud;
 	}
 
+	/**
+	 * draw clouds
+	 */
 	@Override
 	public void render(SpriteBatch batch)
 	{

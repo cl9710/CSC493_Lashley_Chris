@@ -16,12 +16,19 @@ public class Mountains extends AbstractGameObject
 
 	private int length;
 
+	/**
+	 * constructor
+	 * @param length
+	 */
 	public Mountains (int length)
 	{
 		this.length = length;
 		init();
 	}
 
+	/**
+	 * create mountain
+	 */
 	private void init()
 	{
 		dimension.set(10, 2);
@@ -34,6 +41,13 @@ public class Mountains extends AbstractGameObject
 		length += dimension.x * 2;
 	}
 
+	/**
+	 * draw a mountain at specified location with specified tint
+	 * @param batch
+	 * @param offsetX
+	 * @param offsetY
+	 * @param tintColor
+	 */
 	private void drawMountain (SpriteBatch batch, float offsetX, float offsetY, float tintColor)
 	{
 		TextureRegion reg = null;
@@ -65,6 +79,9 @@ public class Mountains extends AbstractGameObject
 		batch.setColor(1, 1, 1, 1);
 	}
 
+	/**
+	 * draw mountains
+	 */
 	@Override
 	public void render(SpriteBatch batch)
 	{

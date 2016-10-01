@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.lashleygdx.game.world.Assets;
 
 /**
- * rock
+ * rocks are the platforms the player moves around on
  * @author Chris Lashley
  */
 public class Rock extends AbstractGameObject
@@ -15,11 +15,17 @@ public class Rock extends AbstractGameObject
 
 	private int length;
 
+	/**
+	 * constructor
+	 */
 	public Rock()
 	{
 		init();
 	}
 
+	/**
+	 * create a rock
+	 */
 	private void init()
 	{
 		dimension.set(1, 1.5f);
@@ -31,16 +37,29 @@ public class Rock extends AbstractGameObject
 		setLength(1);
 	}
 
+	/**
+	 * set a rock length
+	 * @param length
+	 */
 	public void setLength (int length)
 	{
 		this.length = length;
+		// update bounding box for collision detection
+		bounds.set(0, 0, dimension.x * length, dimension.y);
 	}
 
+	/**
+	 * modify a rock length
+	 * @param amount
+	 */
 	public void increaseLength (int amount)
 	{
 		setLength(length + amount);
 	}
 
+	/**
+	 * draw the left edge, middle, then right edge of a rock
+	 */
 	@Override
 	public void render (SpriteBatch batch)
 	{

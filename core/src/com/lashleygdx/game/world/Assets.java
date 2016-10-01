@@ -24,7 +24,9 @@ public class Assets implements Disposable, AssetErrorListener
 
 	private AssetManager assetManager;
 
-	// singleton: prevent instantiation from other classes
+	/**
+	 * singleton to prevent instantiation by other classes
+	 */
 	private Assets()
 	{
 
@@ -38,12 +40,19 @@ public class Assets implements Disposable, AssetErrorListener
 
 	public AssetFonts fonts;
 
+	/**
+	 * fonts used in the game
+	 * @author Chris Lashley
+	 */
 	public class AssetFonts
 	{
 		public final BitmapFont defaultSmall;
 		public final BitmapFont defaultNormal;
 		public final BitmapFont defaultBig;
 
+		/**
+		 * constructor
+		 */
 		public AssetFonts()
 		{
 			// create three fonts using Libgdx 15px bitmap font
@@ -61,7 +70,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
-	// instantiate an instance of itself
+	/**
+	 * create an assetmanager
+	 * @param assetManager
+	 */
 	public void init (AssetManager assetManager)
 	{
 		this.assetManager = assetManager;
@@ -95,8 +107,10 @@ public class Assets implements Disposable, AssetErrorListener
 	levelDecoration = new AssetLevelDecoration(atlas);
 	}
 
-	// free up memory for unwanted assets
-	//@Override
+	/**
+	 * free unused asset memory
+	 */
+	@Override
 	public void dispose()
 	{
 		assetManager.dispose();
@@ -105,18 +119,31 @@ public class Assets implements Disposable, AssetErrorListener
 		fonts.defaultBig.dispose();
 	}
 
-	// error handling
+	/**
+	 * error handling
+	 * @param filename
+	 * @param type
+	 * @param throwable
+	 */
 	public void error(String filename, Class type, Throwable throwable)
 	{
 		Gdx.app.error(TAG,  "Couldn't load asset '" + filename + "'", (Exception)throwable);;
 	}
 
-	// error handling
+	/**
+	 * error handling
+	 * @param asset
+	 * @param throwable
+	 */
 	@Override
 	public void error(AssetDescriptor asset, Throwable throwable) {
 		Gdx.app.error(TAG,  "Couldn't load asset '" + asset.fileName + "'", (Exception)throwable);
 	}
 
+	/**
+	 * bunny texture
+	 * @author Chris Lashley
+	 */
 	public class AssetBunny
 	{
 		public final AtlasRegion head;
@@ -127,6 +154,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	/**
+	 * rock textures
+	 * @author Chris
+	 */
 	public class AssetRock
 	{
 		public final AtlasRegion edge;
@@ -139,6 +170,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	/**
+	 * gold coin textures
+	 * @author Chris
+	 */
 	public class AssetGoldCoin
 	{
 		public final AtlasRegion goldCoin;
@@ -149,6 +184,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	/**
+	 * feather texture
+	 * @author Chris
+	 */
 	public class AssetFeather
 	{
 		public final AtlasRegion feather;
@@ -159,6 +198,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	/**
+	 * level decoration textures
+	 * @author Chris
+	 */
 	public class AssetLevelDecoration
 	{
 		public final AtlasRegion cloud01;

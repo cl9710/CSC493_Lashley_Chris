@@ -13,12 +13,19 @@ public class WaterOverlay extends AbstractGameObject
 	private TextureRegion regWaterOverlay;
 	private float length;
 
+	/**
+	 * constructor
+	 * @param length
+	 */
 	public WaterOverlay (float length)
 	{
 		this.length = length;
 		init();
 	}
 
+	/**
+	 * create a water overlay
+	 */
 	public void init()
 	{
 		dimension.set (length * 10, 3);
@@ -28,6 +35,9 @@ public class WaterOverlay extends AbstractGameObject
 		origin.x = -dimension.x / 2;
 	}
 
+	/**
+	 * draw the water overlay
+	 */
 	@Override
 	public void render(SpriteBatch batch)
 	{
