@@ -25,25 +25,38 @@ public class Assets implements Disposable, AssetErrorListener
 
 	private AssetManager assetManager;
 
-	// singleton: prevent instantiation from other classes
-	private Assets() {}
+	/**
+	 *  singleton to prevent instantiation from other classes
+	 */
+	private Assets()
+	{
+
+	}
 
 	public AssetCat cat;
-	public AssetThorn thorn;
+	public AssetCat bloodlust;
 	public AssetBird bird;
 	public AssetFrog frog;
 	public AssetRock rock;
 	public AssetHouse house;
+	public AssetDog dog;
 	public AssetLevelDecoration levelDecoration;
 
 	public AssetFonts fonts;
 
+	/**
+	 * fonts used in the game
+	 * @author Chris Lashley
+	 */
 	public class AssetFonts
 	{
 		public final BitmapFont defaultSmall;
 		public final BitmapFont defaultNormal;
 		public final BitmapFont defaultBig;
 
+		/**
+		 * constructor
+		 */
 		public AssetFonts()
 		{
 			// create three fonts using Libgdx 15px bitmap font
@@ -61,7 +74,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
-	// instantiate an instance of itself
+	/**
+	 * create the asset manager and assets
+	 * @param assetManager
+	 */
 	public void init (AssetManager assetManager)
 	{
 		this.assetManager = assetManager;
@@ -89,15 +105,18 @@ public class Assets implements Disposable, AssetErrorListener
 	// create game resource objects
 	fonts = new AssetFonts();
 	cat = new AssetCat(atlas);
-	thorn = new AssetThorn(atlas);
 	rock = new AssetRock(atlas);
 	bird = new AssetBird(atlas);
 	frog = new AssetFrog(atlas);
+	dog = new AssetDog(atlas);
+	house = new AssetHouse(atlas);
 	levelDecoration = new AssetLevelDecoration(atlas);
 	}
 
-	// free up memory for unwanted assets
-	//@Override
+	/**
+	 * free up unused asset memory
+	 */
+	@Override
 	public void dispose()
 	{
 		assetManager.dispose();
@@ -106,41 +125,48 @@ public class Assets implements Disposable, AssetErrorListener
 		fonts.defaultBig.dispose();
 	}
 
-	// error handling
+	/**
+	 * error handling
+	 * @param filename
+	 * @param type
+	 * @param throwable
+	 */
 	public void error(String filename, Class type, Throwable throwable)
 	{
 		Gdx.app.error(TAG,  "Couldn't load asset '" + filename + "'", (Exception)throwable);;
 	}
 
-	// error handling
+	/**
+	 * error handling
+	 * @param asset
+	 * @param throwable
+	 */
 	@Override
 	public void error(AssetDescriptor asset, Throwable throwable) {
 		Gdx.app.error(TAG,  "Couldn't load asset '" + asset.fileName + "'", (Exception)throwable);
 	}
 
-	// cat sprite
+	/**
+	 * cat texture (player)
+	 * @author Chris Lashley
+	 */
 	public class AssetCat
 	{
 		public final AtlasRegion cat;
+		public final AtlasRegion bloodlust;
 
 		public AssetCat (TextureAtlas atlas)
 		{
 			cat = atlas.findRegion("cat");
+			bloodlust = atlas.findRegion("bloodlust");
 		}
 	}
 
-	// thorn sprite
-	public class AssetThorn
-	{
-		public final AtlasRegion thorn;
 
-		public AssetThorn (TextureAtlas atlas)
-		{
-			thorn = atlas.findRegion("thorn");
-		}
-	}
-
-	// rock sprite
+	/**
+	 * rock textures
+	 * @author Chris Lashley
+	 */
 	public class AssetRock
 	{
 		public final AtlasRegion edge;
@@ -153,7 +179,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
-	// bird sprite
+	/**
+	 * bird texture
+	 * @author Chris Lashley
+	 */
 	public class AssetBird
 	{
 		public final AtlasRegion bird;
@@ -164,7 +193,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
-	// frog sprite
+	/**
+	 * frog texture
+	 * @author Chris Lashley
+	 */
 	public class AssetFrog
 	{
 		public final AtlasRegion frog;
@@ -175,7 +207,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
-	// house sprite (goal)
+	/**
+	 * house texture (goal)
+	 * @author Chris Lashley
+	 */
 	public class AssetHouse
 	{
 		public final AtlasRegion house;
@@ -186,7 +221,24 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
-	// level/background sprites
+	/**
+	 * dog texture
+	 * @author Chris Lashley
+	 */
+	public class AssetDog
+	{
+		public final AtlasRegion dog;
+
+		public AssetDog (TextureAtlas atlas)
+		{
+			dog = atlas.findRegion("dog");
+		}
+	}
+
+	/**
+	 * level decoration textures
+	 * @author Chris Lashley
+	 */
 	public class AssetLevelDecoration
 	{
 		public final AtlasRegion waterOverlay;

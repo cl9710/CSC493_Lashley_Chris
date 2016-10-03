@@ -1,15 +1,14 @@
 package com.lashleygdx.game.util;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
-//import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.lashleygdx.game.world.objects.AbstractGameObject;
 
 /**
-* Camera Helper sets aspects of the game camera
-* @author Chris Lashley
-*/
+ * Camera Helper sets aspects of the game camera
+ * @author Chris Lashley
+ */
 public class CameraHelper
 {
 	private static final String TAG = CameraHelper.class.getName();
@@ -19,91 +18,119 @@ public class CameraHelper
 
 	private Vector2 position;
 	private float zoom;
-//	private Sprite target;
 	private AbstractGameObject target;
 
+	/**
+	 * constructor
+	 */
 	public CameraHelper ()
 	{
 		position = new Vector2();
 		zoom = 1.0f;
 	}
 
-	// update camera
+	/**
+	 * update camera position
+	 * @param deltaTime
+	 */
 	public void update (float deltaTime)
 	{
 		if (!hasTarget()) return;
 
-//		position.x = target.getX() + target.getOriginX();
-//		position.y = target.getY() + target.getOriginY();
-		position.x = target.position.y + target.origin.x;
+		position.x = target.position.x + target.origin.x;
 		position.y = target.position.y + target.origin.y;
+
+		// prevent camera from moving down too far
+		position.y = Math.max(-1f, position.y);
 	}
 
-	// set camera position
+	/**
+	 * set camera position
+	 * @param x
+	 * @param y
+	 */
 	public void setPosition (float x, float y)
 	{
 		this.position.set(x, y);
 	}
 
-	// get camera position
+	/**
+	 * get camera position
+	 * @return position
+	 */
 	public Vector2 getPosition()
 	{
 		return position;
 	}
 
-	// zoom in/out
+	/**
+	 * zoom in/out
+	 * @param amount
+	 */
 	public void addZoom (float amount)
 	{
 		setZoom(zoom + amount);
 	}
 
-	// set specific zoom level
+	/**
+	 * set specific zoom level
+	 * @param zoom
+	 */
 	public void setZoom(float zoom)
 	{
 		this.zoom = MathUtils.clamp(zoom, MAX_ZOOM_IN, MAX_ZOOM_OUT);
 	}
 
-	// get zoom
+	/**
+	 * get current zoom level
+	 * @return zoom
+	 */
 	public float getZoom()
 	{
 		return zoom;
 	}
 
-	// set camera target
-//	public void setTarget (Sprite target)
-//	{
-//		this.target = target;
-//	}
+	/**
+	 * set a camera target to follow
+	 * @param target
+	 */
 	public void setTarget (AbstractGameObject target)
 	{
 		this.target = target;
 	}
 
-	// get camera target
-//	public Sprite getTarget()
-//	{
-//		return target;
-//	}
+	/**
+	 * get camera target
+	 * @return target
+	 */
 	public AbstractGameObject getTarget()
 	{
 		return target;
 	}
 
+	/**
+	 * check for camera target
+	 * @return true if it has a target
+	 */
 	public boolean hasTarget()
 	{
 		return target != null;
 	}
 
-//	public boolean hasTarget (Sprite target)
-//	{
-//		return hasTarget() && this.target.equals(target);
-//	}
+	/**
+	 * check for a specific camera target
+	 * @param target
+	 * @return true if parameter is current target
+	 */
 	public boolean hasTarget (AbstractGameObject target)
 	{
 		return hasTarget() && this.target.equals(target);
 	}
 
-	// refresh camera position & zoom
+	/**
+	 * refresh camera and zoom levels
+	 * @param camera
+	 */
 	public void applyTo (OrthographicCamera camera)
 	{
 		camera.position.x = position.x;

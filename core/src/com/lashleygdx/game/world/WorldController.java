@@ -1,20 +1,19 @@
 package com.lashleygdx.game.world;
 
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
 import com.lashleygdx.game.util.Constants;
+import com.lashleygdx.game.world.objects.Cat;
+import com.lashleygdx.game.world.objects.Frog;
+import com.lashleygdx.game.world.objects.House;
+import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Rock;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Array;
-
+import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
+import com.lashleygdx.game.world.objects.Dog;
 
 /**
  * World Controller controls all the objects/assets in the game
@@ -23,109 +22,128 @@ import com.badlogic.gdx.utils.Array;
 public class WorldController extends InputAdapter
 {
 	private static final String TAG = WorldController.class.getName();
-	//	public Sprite[] testSprites;
-	//	public int selectedSprite;
 	public CameraHelper cameraHelper;
 	public Level level;
 	public int lives;
-	public int birds;
-	public int frogs;
+	public int birdScore;
+	public int frogScore;
+	public boolean dead;
+
+	// rectangles for collision detection
+	private Rectangle r1 = new Rectangle();
+	private Rectangle r2 = new Rectangle();
+
+	private float timeLeftGameOverDelay;
+	private float timeLeftDead;
 
 	private void initLevel()
 	{
-		birds = 0;
-		frogs = 0;
+		birdScore = 0;
+		frogScore = 0;
 		level = new Level (Constants.LEVEL_01);
+		cameraHelper.setTarget(level.cat);
+		dead = false;
 	}
 
-	// get instance of itself
+	/**
+	 * constructor
+	 */
 	public WorldController ()
 	{
 		init();
 	}
 
-	// create an instance of itself
+	/**
+	 *  create an instance of itself
+	 */
 	private void init ()
 	{
 		Gdx.input.setInputProcessor(this);
 		cameraHelper = new CameraHelper();
-		//		initTestObjects();
 		lives = Constants.LIVES_START;
+		timeLeftGameOverDelay = 0;
+		timeLeftDead = 0;
 		initLevel();
 	}
 
-	//	// create test sprites/objects
-	//	private void initTestObjects()
-	//	{
-	//		// Create new array for 5 sprites
-	//		testSprites = new Sprite[5];
-	//		// Create list of texture regions
-	//		Array<TextureRegion> regions = new Array<TextureRegion>();
-	//		regions.add(Assets.instance.bunny.head);
-	//		regions.add(Assets.instance.feather.feather);
-	//		regions.add(Assets.instance.goldCoin.goldCoin);
-	//		// Create new sprites using a random texture region
-	//		for (int i = 0; i < testSprites.length; i++) {
-	//			Sprite spr = new Sprite(regions.random());
-	//			// Define sprite seize to be 1m x 1m in game world
-	//			spr.setSize(1, 1);
-	//			// Set origin to sprite's center
-	//			spr.setOrigin(spr.getWidth() / 2.0f, spr.getHeight() / 2.0f);
-	//			// Calculate random position for sprite
-	//			float randomX = MathUtils.random(-2.0f, 2.0f);
-	//			float randomY = MathUtils.random(-2.0f, 2.0f);
-	//			spr.setPosition(randomX, randomY);
-	//			// Put new sprite into array
-	//			testSprites[i] = spr;
-	//		}
-	//		// Set first sprite as selected one
-	//		selectedSprite = 0;
-	//	}
-
-	/**	// create test square pixels
-	private Pixmap createProceduralPixmap (int width, int height)
-	{
-		Pixmap pixmap = new Pixmap(width, height, Format.RGBA8888);
-		// Fill square with red color at 50% opacity
-		pixmap.setColor(1, 0, 0, .5f);
-		pixmap.fill();
-		// Draw a yellow-colored X shape on square
-		pixmap.setColor(1, 1, 0, 1);
-		pixmap.drawLine(0, 0, width, height);
-		pixmap.drawLine(width, 0, 0, height);
-		// Draw a cyan colored border around the square
-		pixmap.setColor(0, 1, 1, 1);
-		pixmap.drawRectangle(0, 0, width, height);
-		return pixmap;
-	}*/
-
+	/**
+	 * update the game variables
+	 * @param deltaTime
+	 */
 	public void update (float deltaTime)
 	{
-		handleDebugInput(deltaTime);
-		//		updateTestObjects(deltaTime);
-		cameraHelper.update(deltaTime);
+		if (!dead)
+		{
+			handleDebugInput(deltaTime);
+			if (isVictory())
+			{
+				timeLeftGameOverDelay -= deltaTime;
+				if (timeLeftGameOverDelay < 0) init();
+			}
+			if (isGameOver())
+			{
+				timeLeftGameOverDelay -= deltaTime;
+				if (timeLeftGameOverDelay < 0) init();
+			} else
+			{
+				handleInputGame(deltaTime);
+			}
+			level.update(deltaTime);
+			testCollisions();
+			cameraHelper.update(deltaTime);
+			if (!isGameOver() && isPlayerInWater())
+			{
+				lives--;
+				if (isGameOver())
+					timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+				else
+					initLevel();
+			}
+		} else
+		{
+			if (isGameOver())
+			{
+				timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+				dead = false;
+			} else
+			{
+				timeLeftDead -= deltaTime;
+				if (timeLeftDead < 0)
+				{
+					lives--;
+					if (isGameOver())
+					{
+						dead = false;
+						timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+					} else
+					{
+						initLevel();
+					}
+				}
+			}
+		}
 	}
 
+	/**
+	 * set debug keyboard controls
+	 * @param deltaTime
+	 */
 	private void handleDebugInput (float deltaTime)
 	{
 		if (Gdx.app.getType() != ApplicationType.Desktop) return;
 
-		//		// Selected Sprite Controls
-		//		float sprMoveSpeed = 5 * deltaTime;
-		//		if (Gdx.input.isKeyPressed(Keys.A))moveSelectedSprite(-sprMoveSpeed, 0);
-		//		if (Gdx.input.isKeyPressed(Keys.D))moveSelectedSprite(sprMoveSpeed, 0);
-		//		if (Gdx.input.isKeyPressed(Keys.W))moveSelectedSprite(0, sprMoveSpeed);
-		//		if (Gdx.input.isKeyPressed(Keys.S))moveSelectedSprite(0, -sprMoveSpeed);
-
-		// Camera Controls (move)
-		float camMoveSpeed = 5 * deltaTime;
-		float camMoveSpeedAccelerationFactor = 5;
-		if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)) camMoveSpeed *= camMoveSpeedAccelerationFactor;
-		if (Gdx.input.isKeyPressed(Keys.LEFT)) moveCamera(-camMoveSpeed, 0);
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)) moveCamera(camMoveSpeed, 0);
-		if (Gdx.input.isKeyPressed(Keys.UP)) moveCamera(0, camMoveSpeed);
-		if (Gdx.input.isKeyPressed(Keys.DOWN)) moveCamera(0, -camMoveSpeed);
-		if (Gdx.input.isKeyPressed(Keys.BACKSPACE)) cameraHelper.setPosition(0, 0);
+		if (!cameraHelper.hasTarget(level.cat))
+		{
+			// Camera Controls (move)
+			float camMoveSpeed = 5 * deltaTime;
+			float camMoveSpeedAccelerationFactor = 5;
+			if (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT)) camMoveSpeed *= camMoveSpeedAccelerationFactor;
+			if (Gdx.input.isKeyPressed(Keys.LEFT)) moveCamera(-camMoveSpeed, 0);
+			if (Gdx.input.isKeyPressed(Keys.RIGHT)) moveCamera(camMoveSpeed, 0);
+			if (Gdx.input.isKeyPressed(Keys.UP)) moveCamera(0, camMoveSpeed);
+			if (Gdx.input.isKeyPressed(Keys.DOWN)) moveCamera(0, -camMoveSpeed);
+			if (Gdx.input.isKeyPressed(Keys.BACKSPACE)) cameraHelper.setPosition(0, 0);
+		}
 
 		// Camera Controls (zoom)
 		float camZoomSpeed = 1 * deltaTime;
@@ -136,13 +154,11 @@ public class WorldController extends InputAdapter
 		if (Gdx.input.isKeyPressed(Keys.SLASH)) cameraHelper.setZoom(1);
 	}
 
-	//	// move sprite
-	//	private void moveSelectedSprite (float x, float y)
-	//	{
-	//		testSprites[selectedSprite].translate(x, y);
-	//	}
-
-	// move camera
+	/**
+	 * change camera position
+	 * @param x
+	 * @param y
+	 */
 	private void moveCamera (float x, float y)
 	{
 		x += cameraHelper.getPosition().x;
@@ -150,19 +166,9 @@ public class WorldController extends InputAdapter
 		cameraHelper.setPosition(x, y);
 	}
 
-	//	// sprite animation
-	//	private void updateTestObjects (float deltaTime)
-	//	{
-	//		// Get current rotation from selected sprite
-	//		float rotation = testSprites[selectedSprite].getRotation();
-	//		rotation += 90 * deltaTime;
-	//		// Wrap around at 360 degrees
-	//		rotation %= 360;
-	//		// Set new rotation value to selected sprite
-	//		testSprites[selectedSprite].setRotation(rotation);;
-	//	}
-
-	// keyboard controls
+	/**
+	 * game world keyboard controls
+	 */
 	@Override
 	public boolean keyUp (int keycode)
 	{
@@ -171,21 +177,221 @@ public class WorldController extends InputAdapter
 			init();
 			Gdx.app.debug(TAG,  "Game world resetted");
 		}
-		//		// Select next sprite
-		//		else if (keycode == Keys.SPACE){
-		//			selectedSprite = (selectedSprite + 1) % testSprites.length;
-		//			// Update camera's target to follow the currently selected sprite
-		//			if (cameraHelper.hasTarget()) {
-		//				cameraHelper.setTarget(testSprites[selectedSprite]);
-		//			}
-		//			Gdx.app.debug(TAG, "Sprite #" + selectedSprite + " selected");
-		//		}
-		//		// Toggle camera follow
-		//		else if (keycode == Keys.ENTER){
-		//			cameraHelper.setTarget(cameraHelper.hasTarget() ? null :
-		//				testSprites[selectedSprite]);
-		//			Gdx.app.debug(TAG,  "Camera follow enabled: " + cameraHelper.hasTarget());
-		//		}
+		// toggle camera follow
+		else if (keycode == Keys.ENTER)
+		{
+			cameraHelper.setTarget(cameraHelper.hasTarget() ? null: level.cat);
+			Gdx.app.debug(TAG, "Camera follow enabled: " + cameraHelper.hasTarget());
+		}
 		return false;
+	}
+
+	/**
+	 * handle cat / rock collisions
+	 * @param rock
+	 */
+	private void onCollisionCatWithRock (Rock rock)
+	{
+		Cat cat = level.cat;
+		float heightDifference = Math.abs(cat.position.y - (rock.position.y + rock.bounds.height));
+		if (heightDifference > 0.25f)
+		{
+			boolean hitRightEdge = cat.position.x > (rock.position.x + rock.bounds.width / 2.0f);
+			if (hitRightEdge)
+			{
+				cat.position.x = rock.position.x + rock.bounds.width;
+			}
+			else
+			{
+				cat.position.x = rock.position.x - cat.bounds.width;
+			}
+			return;
+		}
+
+		switch (cat.jumpState)
+		{
+		case GROUNDED:
+			break;
+		case FALLING:
+		case JUMP_FALLING:
+			cat.position.y = rock.position.y + cat.bounds.height + cat.origin.y;
+			cat.jumpState = JUMP_STATE.GROUNDED;
+			break;
+		case JUMP_RISING:
+			cat.position.y = rock.position.y + cat.bounds.height + cat.origin.y;
+			break;
+		}
+	}
+
+	/**
+	 * murder birds and grants 1 stack of bloodlust
+	 * @param bird
+	 */
+	private void onCollisionCatWithBird (Bird bird)
+	{
+		bird.collected = true;
+		birdScore += bird.getScore();
+		level.cat.setBloodlust(true);
+		Gdx.app.log(TAG,  "Bird murdered");
+	}
+
+	/**
+	 * murder frogs and grants the frog jump powerup
+	 * @param frog
+	 */
+	private void onCollisionCatWithFrog (Frog frog)
+	{
+		frog.collected = true;
+		frogScore += frog.getScore();
+		level.cat.setFrogPowerup(true);
+		Gdx.app.log(TAG, "Frog murdered");
+	}
+
+	/**
+	 * reach the goal
+	 * @param house
+	 */
+	private void onCollisionCatWithHouse (House house)
+	{
+		if (!house.reached)
+			Gdx.app.log(TAG, "You made it home");
+		house.reached = true;
+		timeLeftGameOverDelay = Constants.TIME_DELAY_DEAD;
+
+		Cat cat = level.cat;
+		float heightDifference = Math.abs(cat.position.y - (house.position.y + house.bounds.height));
+		if (heightDifference > 0.25f)
+		{
+			boolean hitRightEdge = cat.position.x > (house.position.x + house.bounds.width / 2.0f);
+			if (hitRightEdge)
+			{
+				cat.position.x = house.position.x + house.bounds.width;
+			}
+			else
+			{
+				cat.position.x = house.position.x - cat.bounds.width;
+			}
+			return;
+		}
+	}
+
+	/**
+	 * check for cat being attacked by a dog
+	 * @param dog
+	 */
+	private void onCollisionCatWithDog (Dog dog)
+	{
+		if (!dead)
+		{
+			dead = true;
+			timeLeftDead = Constants.TIME_DELAY_DEAD;
+			Gdx.app.log(TAG,  "Stay away from dogs");
+		}
+	}
+
+	/**
+	 * check for player collision with game objects and world
+	 */
+	private void testCollisions()
+	{
+		r1.set(level.cat.position.x, level.cat.position.y, level.cat.bounds.width,
+				level.cat.bounds.height);
+
+		// test collision: player <--> rocks
+		for (Rock rock : level.rocks)
+		{
+			r2.set(rock.position.x, rock.position.y, rock.bounds.width, rock.bounds.height);
+			if (!r1.overlaps(r2)) continue;
+			onCollisionCatWithRock(rock);
+			// IMPORTANT: must do all collisions for valid edge testing on rocks
+		}
+		// test collision: player <--> bird
+		for (Bird bird : level.birds)
+		{
+			if (bird.collected) continue;
+			r2.set(bird.position.x, bird.position.y, bird.bounds.width, bird.bounds.height);
+			if (!r1.overlaps(r2)) continue;
+			onCollisionCatWithBird(bird);
+			break;
+		}
+		// test collision: player <--> frog
+		for (Frog frog : level.frogs)
+		{
+			if (frog.collected) continue;
+			r2.set(frog.position.x, frog.position.y, frog.bounds.width, frog.bounds.height);
+			if (!r1.overlaps(r2)) continue;
+			onCollisionCatWithFrog(frog);
+			break;
+		}
+		// test collision: player <--> dog
+		for (Dog dog : level.dogs)
+		{
+			r2.set(dog.position.x + dog.origin.x, dog.position.y, dog.bounds.width, dog.bounds.height);
+			if (!r1.overlaps(r2)) continue;
+			onCollisionCatWithDog(dog);
+		}
+		// test collision: cat <--> house
+		r2.set(level.house.position.x, level.house.position.y, level.house.bounds.width, level.house.bounds.height);
+		if (r1.overlaps(r2))
+			onCollisionCatWithHouse(level.house);
+	}
+
+	/**
+	 * player movement / controls
+	 * @param deltaTime
+	 */
+	private void handleInputGame(float deltaTime)
+	{
+		if (cameraHelper.hasTarget(level.cat))	// player movement
+		{
+			if (Gdx.input.isKeyPressed(Keys.LEFT))
+			{
+				level.cat.velocity.x = -level.cat.terminalVelocity.x;
+			} else if (Gdx.input.isKeyPressed(Keys.RIGHT))
+			{
+				level.cat.velocity.x = level.cat.terminalVelocity.x;
+			} else	// execute auto forward movement on non-desktop platform
+			{
+				if (Gdx.app.getType() != ApplicationType.Desktop)
+				{
+					level.cat.velocity.x = level.cat.terminalVelocity.x;
+				}
+			}
+
+			// jump
+			if (Gdx.input.isTouched() || Gdx.input.isKeyPressed(Keys.SPACE))
+			{
+				level.cat.setJumping(true);
+			} else
+			{
+				level.cat.setJumping(false);
+			}
+		}
+	}
+
+	/**
+	 * check for game over
+	 * @return true if player loses a life with no lives remaining
+	 */
+	public boolean isGameOver()
+	{
+		return lives < 0;
+	}
+
+	/**
+	 * check if player fell in water
+	 * @return true if player fell in water
+	 */
+	public boolean isPlayerInWater()
+	{
+		return level.cat.position.y < -5;
+	}
+
+	/**
+	 * check for victory
+	 */
+	public boolean isVictory()
+	{
+		return level.house.reached;
 	}
 }

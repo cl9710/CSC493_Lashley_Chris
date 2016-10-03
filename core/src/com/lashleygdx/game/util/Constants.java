@@ -26,4 +26,19 @@ public class Constants
 
 	// Amount of extra lives at level start
 	public static final int LIVES_START = 3;
+
+	// Duration of frog powerup in seconds
+	public static final float ITEM_FROG_POWERUP_DURATION = 9;
+
+	// Duration of bloodlust powerup in seconds
+	public static final float BLOODLUST_POWERUP_DURATION = 1.5f;
+
+	// Delay after game over
+	public static final float TIME_DELAY_GAME_OVER = 3;
+
+	// Delay after death
+	public static final float TIME_DELAY_DEAD = 3;
+
+	// Temporary damage immunity after hitting thorns
+	public static final float DMG_IMMUNITY = 3;
 }

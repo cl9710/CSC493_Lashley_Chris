@@ -5,14 +5,19 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.lashleygdx.game.world.objects.AbstractGameObject;
+import com.lashleygdx.game.world.objects.Bird;
+import com.lashleygdx.game.world.objects.Cat;
+import com.lashleygdx.game.world.objects.Dog;
+import com.lashleygdx.game.world.objects.Frog;
 import com.lashleygdx.game.world.objects.Ground;
+import com.lashleygdx.game.world.objects.House;
 import com.lashleygdx.game.world.objects.Trees;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.WaterOverlay;
 
 /**
- * level data
- * @author Chris
+ * level data & builder
+ * @author Chris Lashley
  */
 public class Level
 {
@@ -25,7 +30,7 @@ public class Level
 		PLAYER_SPAWNPOINT (255, 255, 255), // white
 		FROG (255, 0, 255), // purple
 		BIRD (255, 255, 0), // yellow
-		THORN (255, 0, 0), // red
+		DOG (255, 0, 0),	// red
 		HOUSE (0, 0, 255); // blue
 
 		private int color;
@@ -48,21 +53,41 @@ public class Level
 
 	// objects
 	public Array<Rock> rocks;
+	public Cat cat;
+	public Array<Dog> dogs;
+	public Array<Bird> birds;
+	public Array<Frog> frogs;
+	public House house;
 
 	// decoration
 	public Trees trees;
 	public WaterOverlay waterOverlay;
 	public Ground ground;
 
+
+	/**
+	 * constructor
+	 * @param filename
+	 */
 	public Level (String filename)
 	{
 		init (filename);
 	}
 
+	/**
+	 * create the specified level by mapping pixel colors with objects
+	 * @param filename
+	 */
 	private void init (String filename)
 	{
 		// objects
 		rocks = new Array<Rock>();
+		cat = null;
+		birds = new Array<Bird>();
+		frogs = new Array<Frog>();
+		dogs = new Array<Dog>();
+		//		thorns = new Array<Thorn>();
+		house = null;
 
 		// load image file that represents the level data
 		Pixmap pixmap = new Pixmap (Gdx.files.internal(filename));
@@ -93,9 +118,8 @@ public class Level
 					if (lastPixel != currentPixel)
 					{
 						obj = new Rock();
-						float heightIncreaseFactor = 0.25f;
 						offsetHeight = -2.5f;
-						obj.position.set(pixelX, baseHeight * obj.dimension.y * heightIncreaseFactor + offsetHeight);
+						obj.position.set(pixelX, baseHeight + offsetHeight);
 						rocks.add((Rock)obj);
 					}
 					else
@@ -106,27 +130,43 @@ public class Level
 				// player spawn point
 				else if	(BLOCK_TYPE.PLAYER_SPAWNPOINT.sameColor(currentPixel))
 				{
-
+					obj = new Cat();
+					offsetHeight = -2.0f;
+					obj.position.set(pixelX, baseHeight + offsetHeight);
+					cat = (Cat)obj;
+					offsetHeight = 0;
 				}
 				// frog
 				else if (BLOCK_TYPE.FROG.sameColor(currentPixel))
 				{
-
+					obj = new Frog();
+					offsetHeight = -2.1f;
+					obj.position.set(pixelX, baseHeight + offsetHeight);
+					frogs.add((Frog)obj);
 				}
 				// bird
 				else if (BLOCK_TYPE.BIRD.sameColor(currentPixel))
 				{
-
+					obj = new Bird();
+					offsetHeight = -2.0f;
+					obj.position.set(pixelX, baseHeight + (obj.dimension.y / 2) + offsetHeight);
+					birds.add((Bird)obj);
 				}
 				// house (goal)
 				else if (BLOCK_TYPE.HOUSE.sameColor(currentPixel))
 				{
-
+					obj = new House();
+					offsetHeight = -2.1f;
+					obj.position.set(pixelX, baseHeight + offsetHeight);
+					house = (House)obj;
 				}
-				// thorn
-				else if (BLOCK_TYPE.THORN.sameColor(currentPixel))
+				// dog
+				else if (BLOCK_TYPE.DOG.sameColor(currentPixel))
 				{
-
+					obj = new Dog();
+					offsetHeight = -2.0f;
+					obj.position.set(pixelX, baseHeight + offsetHeight);
+					dogs.add((Dog)obj);
 				}
 				// unknown object/pixel color
 				else
@@ -155,6 +195,10 @@ public class Level
 		Gdx.app.debug (TAG, "level '" + filename + "' loaded");
 	}
 
+	/**
+	 * draw the level and objects
+	 * @param batch
+	 */
 	public void render (SpriteBatch batch)
 	{
 		// draw background
@@ -167,7 +211,40 @@ public class Level
 		for (Rock rock : rocks)
 			rock.render(batch);
 
+		// draw birds
+		for (Bird bird : birds)
+			bird.render(batch);
+
+		// draw frogs
+		for (Frog frog : frogs)
+			frog.render(batch);
+
+		//draw house
+		house.render(batch);
+
+		// draw player character (cat)
+		cat.render(batch);
+
+		// draw dogs
+		for (Dog dog : dogs)
+			dog.render(batch);
+
 		// draw water overlay
 		waterOverlay.render(batch);
+	}
+
+	/**
+	 * update level object variables
+	 * @param deltaTime
+	 */
+	public void update (float deltaTime)
+	{
+		cat.update(deltaTime);
+		for (Rock rock : rocks)
+			rock.update(deltaTime);
+		for (Bird bird : birds)
+			bird.update(deltaTime);
+		for (Frog frog : frogs)
+			frog.update(deltaTime);
 	}
 }

@@ -21,7 +21,9 @@ public class LashleyGdxGame implements ApplicationListener
 	private WorldRenderer worldRenderer;
 	private boolean paused;
 
-	// create a new instance of the game
+	/**
+	 * create a new instance of the game
+	 */
 	@Override
 	public void create ()
 	{
@@ -36,7 +38,9 @@ public class LashleyGdxGame implements ApplicationListener
 		paused = false;
 	}
 
-	// draws the game
+	/**
+	 * draw the game
+	 */
 	@Override
 	public void render ()
 	{
@@ -54,33 +58,40 @@ public class LashleyGdxGame implements ApplicationListener
 		worldRenderer.render();
 	}
 
-	// control game window size
+	/**
+	 * control game window size
+	 */
 	@Override
 	public void resize (int width, int height)
 	{
 		worldRenderer.resize(width, height);
 	}
 
-	// pause game
+	/**
+	 * pause the game
+	 */
 	@Override
 	public void pause ()
 	{
 		paused = true;
 	}
 
-	// unpause game
+	/**
+	 * unpause the game
+	 */
 	@Override
 	public void resume ()
 	{
 		paused = false;
 	}
 
-	// free memory of unused assets
+	/**
+	 * free unused asset memory
+	 */
 	@Override
 	public void dispose ()
 	{
 		worldRenderer.dispose();
 		Assets.instance.dispose();
-
 	}
 }
