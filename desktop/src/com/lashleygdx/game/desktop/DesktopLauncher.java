@@ -29,6 +29,7 @@ public class DesktopLauncher
 			settings.duplicatePadding = false;
 			settings.debug = drawDebugOutline;
 			TexturePacker.process(settings,  "assets-raw/images",  "../core/assets/images", "murderkitty.pack");
+			TexturePacker.process(settings, "assets-raw/images-ui", "../core/assets/images", "murderkitty-ui.pack");
 		}
 
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();

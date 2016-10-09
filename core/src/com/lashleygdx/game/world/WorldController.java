@@ -14,6 +14,8 @@ import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
 import com.lashleygdx.game.world.objects.Dog;
+import com.badlogic.gdx.Game;
+import com.lashleygdx.game.screens.MenuScreen;
 
 /**
  * World Controller controls all the objects/assets in the game
@@ -28,6 +30,7 @@ public class WorldController extends InputAdapter
 	public int birdScore;
 	public int frogScore;
 	public boolean dead;
+	private Game game;
 
 	// rectangles for collision detection
 	private Rectangle r1 = new Rectangle();
@@ -48,8 +51,9 @@ public class WorldController extends InputAdapter
 	/**
 	 * constructor
 	 */
-	public WorldController ()
+	public WorldController (Game game)
 	{
+		this.game = game;
 		init();
 	}
 
@@ -78,7 +82,7 @@ public class WorldController extends InputAdapter
 			if (isVictory())
 			{
 				timeLeftGameOverDelay -= deltaTime;
-				if (timeLeftGameOverDelay < 0) init();
+				if (timeLeftGameOverDelay < 0) backToMenu();
 			}
 			if (isGameOver())
 			{
@@ -182,6 +186,11 @@ public class WorldController extends InputAdapter
 		{
 			cameraHelper.setTarget(cameraHelper.hasTarget() ? null: level.cat);
 			Gdx.app.debug(TAG, "Camera follow enabled: " + cameraHelper.hasTarget());
+		}
+		// back to menu
+		else if (keycode == Keys.ESCAPE || keycode == Keys.BACK)
+		{
+			backToMenu();
 		}
 		return false;
 	}
@@ -393,5 +402,13 @@ public class WorldController extends InputAdapter
 	public boolean isVictory()
 	{
 		return level.house.reached;
+	}
+
+	/**
+	 * switch to menu screen
+	 */
+	private void backToMenu()
+	{
+		game.setScreen(new MenuScreen(game));
 	}
 }

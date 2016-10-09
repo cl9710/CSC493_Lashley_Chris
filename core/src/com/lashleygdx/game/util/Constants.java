@@ -39,6 +39,17 @@ public class Constants
 	// Delay after death
 	public static final float TIME_DELAY_DEAD = 3;
 
-	// Temporary damage immunity after hitting thorns
+	// Temporary damage immunity after hitting something
 	public static final float DMG_IMMUNITY = 3;
+
+	// Location of description file for ui texture atlas
+	public static final String TEXTURE_ATLAS_UI = "images/murderkitty-ui.pack.atlas";
+	public static final String TEXTURE_ATLAS_LIBGDX_UI = "images/uiskin.atlas";
+
+	// Location of description file for skins
+	public static final String SKIN_LIBGDX_UI = "images/uiskin.json";
+	public static final String SKIN_MURDERKITTY_UI = "images/murderkitty-ui.json";
+
+	// preferences saved location
+	public static final String PREFERENCES = "murderkitty.prefs";
 }

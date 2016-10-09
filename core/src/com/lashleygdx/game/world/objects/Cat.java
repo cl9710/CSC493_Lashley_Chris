@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
+import com.lashleygdx.game.util.CharacterSkin;
+import com.lashleygdx.game.util.GamePreferences;
 
 /**
  * player character
@@ -225,6 +227,9 @@ public class Cat extends AbstractGameObject
 	public void render(SpriteBatch batch)
 	{
 		TextureRegion reg = null;
+
+		// apply selected skin color
+		batch.setColor(CharacterSkin.values()[GamePreferences.instance.charSkin].getColor());
 
 		// set special color when has frog powerup (overrides bloodlust color)
 		if (hasFrogPowerup)
