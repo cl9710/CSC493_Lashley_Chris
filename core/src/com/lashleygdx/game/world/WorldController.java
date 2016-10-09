@@ -12,6 +12,8 @@ import com.lashleygdx.game.world.objects.BunnyHead.JUMP_STATE;
 import com.lashleygdx.game.world.objects.Feather;
 import com.lashleygdx.game.world.objects.GoldCoin;
 import com.lashleygdx.game.world.objects.Rock;
+import com.badlogic.gdx.Game;
+import com.lashleygdx.game.screens.MenuScreen;
 
 /**
  * World Controller controls all the objects/assets in the game
@@ -24,6 +26,7 @@ public class WorldController extends InputAdapter
 	public Level level;
 	public int lives;
 	public int score;
+	private Game game;
 
 	// rectangles for collision detection
 	private Rectangle r1 = new Rectangle();
@@ -31,6 +34,9 @@ public class WorldController extends InputAdapter
 
 	private float timeLeftGameOverDelay;
 
+	/**
+	 * start a new level
+	 */
 	private void initLevel()
 	{
 		score = 0;
@@ -41,8 +47,9 @@ public class WorldController extends InputAdapter
 	/**
 	 * constructor
 	 */
-	public WorldController ()
+	public WorldController (Game game)
 	{
+		this.game = game;
 		init();
 	}
 
@@ -68,7 +75,7 @@ public class WorldController extends InputAdapter
 		if (isGameOver())
 		{
 			timeLeftGameOverDelay -= deltaTime;
-			if (timeLeftGameOverDelay < 0) init();
+			if (timeLeftGameOverDelay < 0) backToMenu();
 		} else
 		{
 			handleInputGame(deltaTime);
@@ -144,6 +151,11 @@ public class WorldController extends InputAdapter
 		{
 			cameraHelper.setTarget(cameraHelper.hasTarget() ? null: level.bunnyHead);
 			Gdx.app.debug(TAG, "Camera follow enabled: " + cameraHelper.hasTarget());
+		}
+		// back to menu
+		else if (keycode == Keys.ESCAPE || keycode == Keys.BACK)
+		{
+			backToMenu();
 		}
 		return false;
 	}
@@ -293,5 +305,13 @@ public class WorldController extends InputAdapter
 	public boolean isPlayerInWater()
 	{
 		return level.bunnyHead.position.y < -5;
+	}
+
+	/**
+	 * switch to menu screen
+	 */
+	private void backToMenu()
+	{
+		game.setScreen(new MenuScreen(game));
 	}
 }

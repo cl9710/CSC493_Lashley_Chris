@@ -18,7 +18,7 @@ public class Constants
 	// GUI height
 	public static final float VIEWPORT_GUI_HEIGHT = 480.0f;
 
-	// Location of description file for texture atlas
+	// Location of description file for game objects texture atlas
 	public static final String TEXTURE_ATLAS_OBJECTS = "images/canyonbunny.pack.atlas";
 
 	// Location of image file for level 01
@@ -32,4 +32,15 @@ public class Constants
 
 	// Delay after game over
 	public static final float TIME_DELAY_GAME_OVER = 3;
+
+	// Location of description file for ui texture atlas
+	public static final String TEXTURE_ATLAS_UI = "images/canyonbunny-ui.pack.atlas";
+	public static final String TEXTURE_ATLAS_LIBGDX_UI = "images/uiskin.atlas";
+
+	// Location of description file for skins
+	public static final String SKIN_LIBGDX_UI = "images/uiskin.json";
+	public static final String SKIN_CANYONBUNNY_UI = "images/canyonbunny-ui.json";
+
+	// preferences saved location
+	public static final String PREFERENCES = "canyonbunny.prefs";
 }
