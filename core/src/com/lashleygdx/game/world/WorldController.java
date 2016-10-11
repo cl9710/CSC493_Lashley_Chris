@@ -87,7 +87,7 @@ public class WorldController extends InputAdapter
 			if (isGameOver())
 			{
 				timeLeftGameOverDelay -= deltaTime;
-				if (timeLeftGameOverDelay < 0) init();
+				if (timeLeftGameOverDelay < 0) backToMenu();
 			} else
 			{
 				handleInputGame(deltaTime);
@@ -262,25 +262,28 @@ public class WorldController extends InputAdapter
 	 */
 	private void onCollisionCatWithHouse (House house)
 	{
-		if (!house.reached)
-			Gdx.app.log(TAG, "You made it home");
-		house.reached = true;
-		timeLeftGameOverDelay = Constants.TIME_DELAY_DEAD;
-
-		Cat cat = level.cat;
-		float heightDifference = Math.abs(cat.position.y - (house.position.y + house.bounds.height));
-		if (heightDifference > 0.25f)
+		if (!isVictory())
 		{
-			boolean hitRightEdge = cat.position.x > (house.position.x + house.bounds.width / 2.0f);
-			if (hitRightEdge)
+			if (!house.reached)
+				Gdx.app.log(TAG, "You made it home");
+			house.reached = true;
+			timeLeftGameOverDelay = Constants.TIME_DELAY_DEAD;
+
+			Cat cat = level.cat;
+			float heightDifference = Math.abs(cat.position.y - (house.position.y + house.bounds.height));
+			if (heightDifference > 0.25f)
 			{
-				cat.position.x = house.position.x + house.bounds.width;
+				boolean hitRightEdge = cat.position.x > (house.position.x + house.bounds.width / 2.0f);
+				if (hitRightEdge)
+				{
+					cat.position.x = house.position.x + house.bounds.width;
+				}
+				else
+				{
+					cat.position.x = house.position.x - cat.bounds.width;
+				}
+				return;
 			}
-			else
-			{
-				cat.position.x = house.position.x - cat.bounds.width;
-			}
-			return;
 		}
 	}
 
@@ -290,12 +293,13 @@ public class WorldController extends InputAdapter
 	 */
 	private void onCollisionCatWithDog (Dog dog)
 	{
-		if (!dead)
-		{
-			dead = true;
-			timeLeftDead = Constants.TIME_DELAY_DEAD;
-			Gdx.app.log(TAG,  "Stay away from dogs");
-		}
+		if (!isGameOver())
+			if (!dead)
+			{
+				dead = true;
+				timeLeftDead = Constants.TIME_DELAY_DEAD;
+				Gdx.app.log(TAG,  "Stay away from dogs");
+			}
 	}
 
 	/**
@@ -351,7 +355,7 @@ public class WorldController extends InputAdapter
 	 */
 	private void handleInputGame(float deltaTime)
 	{
-		if (cameraHelper.hasTarget(level.cat))	// player movement
+		if ((cameraHelper.hasTarget(level.cat)) && (!isVictory()))	// player movement
 		{
 			if (Gdx.input.isKeyPressed(Keys.LEFT))
 			{
