@@ -6,6 +6,8 @@ import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 
 /**
  * player character
@@ -19,6 +21,15 @@ public class BunnyHead extends AbstractGameObject
 	private final float JUMP_TIME_MIN = 0.1f;
 	private final float JUMP_TIME_OFFSET_FLYING = JUMP_TIME_MAX - 0.018f;
 
+	private TextureRegion regHead;
+	public VIEW_DIRECTION viewDirection;
+	public float timeJumping;
+	public JUMP_STATE jumpState;
+	public boolean hasFeatherPowerup;
+	public float timeLeftFeatherPowerup;
+
+	public ParticleEffect dustParticles = new ParticleEffect();
+
 	public enum VIEW_DIRECTION
 	{	LEFT,
 		RIGHT
@@ -31,14 +42,6 @@ public class BunnyHead extends AbstractGameObject
 		JUMP_RISING,
 		JUMP_FALLING
 	}
-
-	private TextureRegion regHead;
-
-	public VIEW_DIRECTION viewDirection;
-	public float timeJumping;
-	public JUMP_STATE jumpState;
-	public boolean hasFeatherPowerup;
-	public float timeLeftFeatherPowerup;
 
 	/**
 	 * constructor
@@ -71,6 +74,9 @@ public class BunnyHead extends AbstractGameObject
 		//powerups
 		hasFeatherPowerup = false;
 		timeLeftFeatherPowerup = 0;
+
+		// particles
+		dustParticles.load(Gdx.files.internal("particles/dust.pfx"), Gdx.files.internal("particles"));
 	}
 
 	/**
@@ -129,9 +135,11 @@ public class BunnyHead extends AbstractGameObject
 	@Override
 	public void update (float deltaTime)
 	{
-		super.update(deltaTime);;
+		super.update(deltaTime);
 		if (velocity.x != 0)
+		{
 			viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
+		}
 		if (timeLeftFeatherPowerup > 0)
 		{	// 																					is this needed?
 			timeLeftFeatherPowerup -= deltaTime;
@@ -142,6 +150,7 @@ public class BunnyHead extends AbstractGameObject
 				setFeatherPowerup(false);
 			}
 		}
+		dustParticles.update(deltaTime);
 	}
 
 	/**
@@ -154,6 +163,11 @@ public class BunnyHead extends AbstractGameObject
 		{
 		case GROUNDED:
 			jumpState = JUMP_STATE.FALLING;
+			if (velocity.x != 0)
+			{
+				dustParticles.setPosition(position.x + dimension.x / 2,  position.y);
+				dustParticles.start();
+			}
 			break;
 		case JUMP_RISING:
 			// keep track of jump time
@@ -172,7 +186,10 @@ public class BunnyHead extends AbstractGameObject
 				velocity.y = terminalVelocity.y;
 		}
 		if (jumpState != JUMP_STATE.GROUNDED)
+		{
+			dustParticles.allowCompletion();
 			super.updateMotionY(deltaTime);
+		}
 	}
 
 	/**
@@ -182,6 +199,9 @@ public class BunnyHead extends AbstractGameObject
 	public void render(SpriteBatch batch)
 	{
 		TextureRegion reg = null;
+
+		// draw particles
+		dustParticles.draw(batch);
 
 		// apply selected skin color
 		batch.setColor(CharacterSkin.values()[GamePreferences.instance.charSkin].getColor());
