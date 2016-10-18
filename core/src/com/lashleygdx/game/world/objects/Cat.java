@@ -2,11 +2,12 @@ package com.lashleygdx.game.world.objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 
 /**
  * player character
@@ -21,6 +22,21 @@ public class Cat extends AbstractGameObject
 	private final float JUMP_TIME_MIN = 0.1f;
 	private final float JUMP_TIME_OFFSET_FLYING = JUMP_TIME_MAX - 0.018f;
 
+	private TextureRegion regCat;
+	private TextureRegion regBloodlust;
+	private TextureRegion regDeadCat;
+	public VIEW_DIRECTION viewDirection;
+	public float timeJumping;
+	public JUMP_STATE jumpState;
+	public boolean hasFrogPowerup;
+	public float timeLeftFrogPowerup;
+	public boolean hasBloodlust;
+	public float timeLeftBloodlust;
+	public boolean dead;
+
+	public ParticleEffect dustParticles = new ParticleEffect();
+
+
 	public enum VIEW_DIRECTION
 	{	LEFT,
 		RIGHT
@@ -33,18 +49,6 @@ public class Cat extends AbstractGameObject
 		JUMP_RISING,
 		JUMP_FALLING
 	}
-
-	private TextureRegion regCat;
-	private TextureRegion regBloodlust;
-
-	public VIEW_DIRECTION viewDirection;
-	public float timeJumping;
-	public JUMP_STATE jumpState;
-	public boolean hasFrogPowerup;
-	public float timeLeftFrogPowerup;
-	public boolean hasBloodlust;
-	public float timeLeftBloodlust;
-
 
 	/**
 	 * constructor
@@ -62,6 +66,8 @@ public class Cat extends AbstractGameObject
 		dimension.set(1, 1);
 		regCat = Assets.instance.cat.cat;
 		regBloodlust = Assets.instance.cat.bloodlust;
+		regDeadCat = Assets.instance.cat.deadCat;
+		dead = false;
 		// center image on game object
 		origin.set(dimension.x /2, dimension.y / 2);
 		// bounding box for collision detection
@@ -80,6 +86,9 @@ public class Cat extends AbstractGameObject
 		timeLeftFrogPowerup = 0;
 		hasBloodlust = false;
 		timeLeftBloodlust = 0;
+
+		// particles
+		dustParticles.load(Gdx.files.internal("particles/dust.pfx"), Gdx.files.internal("particles"));
 	}
 
 	/**
@@ -186,6 +195,7 @@ public class Cat extends AbstractGameObject
 
 			}
 		}
+		dustParticles.update(deltaTime);
 	}
 
 	/**
@@ -198,6 +208,11 @@ public class Cat extends AbstractGameObject
 		{
 		case GROUNDED:
 			jumpState = JUMP_STATE.FALLING;
+			if (velocity.x != 0)
+			{
+				dustParticles.setPosition(position.x + dimension.x / 2,  position.y);
+				dustParticles.start();
+			}
 			break;
 		case JUMP_RISING:
 			// keep track of jump time
@@ -216,7 +231,10 @@ public class Cat extends AbstractGameObject
 				velocity.y = terminalVelocity.y;
 		}
 		if (jumpState != JUMP_STATE.GROUNDED)
+		{
+			dustParticles.allowCompletion();
 			super.updateMotionY(deltaTime);
+		}
 	}
 
 	/**
@@ -228,28 +246,38 @@ public class Cat extends AbstractGameObject
 	{
 		TextureRegion reg = null;
 
-		// apply selected skin color
-		batch.setColor(CharacterSkin.values()[GamePreferences.instance.charSkin].getColor());
-
-		// set special color when has frog powerup (overrides bloodlust color)
-		if (hasFrogPowerup)
+		if (!dead)
 		{
-			batch.setColor(0.0f, 1.0f, 0.0f, 1.0f);
-			if (timeLeftFrogPowerup < 3)	// fade player in/out if have frog powerup running low 5/s
+			// draw particles
+			dustParticles.draw(batch);
+
+			// apply selected skin color
+			batch.setColor(CharacterSkin.values()[GamePreferences.instance.charSkin].getColor());
+
+			// set special color when has frog powerup (overrides bloodlust color)
+			if (hasFrogPowerup)
 			{
-				if (((int)(timeLeftFrogPowerup * 5) % 2) != 0)
+				batch.setColor(0.0f, 1.0f, 0.0f, 1.0f);
+				if (timeLeftFrogPowerup < 3)	// fade player in/out if have frog powerup running low 5/s
 				{
-					batch.setColor(0, 1, 0, 0.5f);
+					if (((int)(timeLeftFrogPowerup * 5) % 2) != 0)
+					{
+						batch.setColor(0, 1, 0, 0.5f);
+					}
 				}
 			}
-		}
-		// draw image
-		if (hasBloodlust())	// use bloodlust image if has bloodlust
+			// draw image
+			if (hasBloodlust())	// use bloodlust image if has bloodlust
+			{
+				reg = regBloodlust;
+			} else	// use regular cat image
+			{
+				reg = regCat;
+			}
+		}else	// dead
 		{
-			reg = regBloodlust;
-		} else	// use regular cat image
-		{
-			reg = regCat;
+			batch.setColor(1,  1,  1,  1);
+			reg = regDeadCat;
 		}
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
@@ -257,5 +285,14 @@ public class Cat extends AbstractGameObject
 
 		// reset color to white
 		batch.setColor(1,  1,  1,  1);
+	}
+
+	/**
+	 * freeze movement for win/death
+	 */
+	public void freeze()
+	{
+		velocity.set(0, 0);
+		acceleration.set(0, 0);
 	}
 }

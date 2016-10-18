@@ -1,18 +1,36 @@
 package com.lashleygdx.game.world.objects;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.lashleygdx.game.world.Assets;
 
 /**
  * Birds are added to score
+ * birds flap their wings and bob up and down slightly
  * @author Chris Lashley
  */
 public class Bird extends AbstractGameObject
 {
-	private TextureRegion regBird;
+	private final float FLOAT_CYCLE_TIME = 2.0f;
+	private final float FLOAT_AMPLITUDE = 0.25f;
+	private final float FLAP_SPEED = 0.25f;
+
+	private TextureRegion regBirdUp;
+	private TextureRegion regBirdDown;
 
 	public boolean collected;
+
+	public ParticleEffect bloodParticles = new ParticleEffect();
+
+	private float floatCycleTimeLeft;
+	private boolean floatingDownwards;
+	private Vector2 floatTargetPosition;
+	private float flapTimeLeft;
+	private boolean flapUp;
 
 	/**
 	 * constructor
@@ -29,12 +47,26 @@ public class Bird extends AbstractGameObject
 	{
 		dimension.set(0.5f, 0.5f);
 
-		regBird = Assets.instance.bird.bird;
+		regBirdUp = Assets.instance.bird.birdUp;
+		regBirdDown = Assets.instance.bird.birdDown;
 
 		// set bounding box for collision detection
 		bounds.set(0, 0, dimension.x, dimension.y);
 
 		collected = false;
+
+		// set random initial random point of bobbing up and down
+		floatingDownwards = false;
+		floatCycleTimeLeft = MathUtils.random(0, FLOAT_CYCLE_TIME / 2);
+		floatTargetPosition = null;
+
+		// set random wing start position and random time until first flap
+		int temp = (int)Math.round(Math.random());
+		flapUp = temp > 0;
+		flapTimeLeft = MathUtils.random(0, FLAP_SPEED);
+
+		// particles
+		bloodParticles.load(Gdx.files.internal("particles/blood.pfx"), Gdx.files.internal("particles"));
 	}
 
 	/**
@@ -42,10 +74,16 @@ public class Bird extends AbstractGameObject
 	 */
 	public void render (SpriteBatch batch)
 	{
+		// draw particles
+		bloodParticles.draw(batch);
+
 		if (collected) return;
 
 		TextureRegion reg = null;
-		reg = regBird;
+		if (flapUp)
+			reg = regBirdUp;
+		else if (!flapUp)
+			reg = regBirdDown;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
 				reg.getRegionWidth(), reg.getRegionHeight(), false, false);
@@ -53,10 +91,47 @@ public class Bird extends AbstractGameObject
 
 	/**
 	 * caught a bird
+	 * birds explode with blood when caught
 	 * @return 1
 	 */
 	public int getScore()
 	{
+		bloodParticles.setPosition(position.x + dimension.x / 2,  position.y);
+		bloodParticles.start();
 		return 1;
+	}
+
+	/**
+	 * update bird to allow bob, flap, and blood spray animations
+	 */
+	@Override
+	public void update (float deltaTime)
+	{
+		super.update(deltaTime);
+
+		// blood spray
+		bloodParticles.update(deltaTime);
+
+		// bobbing
+		floatCycleTimeLeft -= deltaTime;
+		if (floatTargetPosition == null)
+		{
+			floatTargetPosition = new Vector2(position);
+		}
+		if (floatCycleTimeLeft <= 0)
+		{
+			floatCycleTimeLeft = FLOAT_CYCLE_TIME;
+			floatingDownwards = !floatingDownwards;
+			floatTargetPosition.y += FLOAT_AMPLITUDE * (floatingDownwards ? -1 : 1);
+		}
+		position.lerp(floatTargetPosition,  deltaTime);
+
+		// flapping
+		flapTimeLeft -= deltaTime;
+		if (flapTimeLeft <= 0)
+		{
+			flapTimeLeft = FLAP_SPEED;
+			flapUp = !flapUp;
+		}
 	}
 }

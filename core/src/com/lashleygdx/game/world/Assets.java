@@ -7,7 +7,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.utils.Disposable;
 import com.lashleygdx.game.util.Constants;
-import com.lashleygdx.game.world.Assets.AssetFonts;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -34,7 +33,6 @@ public class Assets implements Disposable, AssetErrorListener
 	}
 
 	public AssetCat cat;
-	public AssetCat bloodlust;
 	public AssetBird bird;
 	public AssetFrog frog;
 	public AssetRock rock;
@@ -154,14 +152,15 @@ public class Assets implements Disposable, AssetErrorListener
 	{
 		public final AtlasRegion cat;
 		public final AtlasRegion bloodlust;
+		public final AtlasRegion deadCat;
 
 		public AssetCat (TextureAtlas atlas)
 		{
 			cat = atlas.findRegion("cat");
 			bloodlust = atlas.findRegion("bloodlust");
+			deadCat = atlas.findRegion("deadCat");
 		}
 	}
-
 
 	/**
 	 * rock textures
@@ -185,11 +184,13 @@ public class Assets implements Disposable, AssetErrorListener
 	 */
 	public class AssetBird
 	{
-		public final AtlasRegion bird;
+		public final AtlasRegion birdUp;
+		public final AtlasRegion birdDown;
 
 		public AssetBird (TextureAtlas atlas)
 		{
-			bird = atlas.findRegion("bird");
+			birdUp = atlas.findRegion("birdUp");
+			birdDown = atlas.findRegion("birdDown");
 		}
 	}
 
@@ -245,6 +246,9 @@ public class Assets implements Disposable, AssetErrorListener
 		public final AtlasRegion ground;
 		public final AtlasRegion tree1;
 		public final AtlasRegion tree2;
+		public final AtlasRegion eye01;
+		public final AtlasRegion eye02;
+		public final AtlasRegion eye03;
 
 		public AssetLevelDecoration (TextureAtlas atlas)
 		{
@@ -252,6 +256,9 @@ public class Assets implements Disposable, AssetErrorListener
 			ground = atlas.findRegion("ground");
 			tree1 = atlas.findRegion("tree1");
 			tree2 = atlas.findRegion("tree2");
+			eye01 = atlas.findRegion("eye01");
+			eye02 = atlas.findRegion("eye02");
+			eye03 = atlas.findRegion("eye03");
 		}
 	}
 }

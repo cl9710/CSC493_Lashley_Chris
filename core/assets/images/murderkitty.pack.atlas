@@ -1,0 +1,143 @@
+
+murderkitty.pack.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+birdDown
+  rotate: false
+  xy: 2, 330
+  size: 716, 632
+  orig: 716, 632
+  offset: 0, 0
+  index: -1
+eye01
+  rotate: false
+  xy: 720, 520
+  size: 111, 84
+  orig: 111, 84
+  offset: 0, 0
+  index: -1
+eye02
+  rotate: false
+  xy: 410, 266
+  size: 84, 62
+  orig: 84, 62
+  offset: 0, 0
+  index: -1
+eye03
+  rotate: false
+  xy: 260, 216
+  size: 148, 112
+  orig: 148, 112
+  offset: 0, 0
+  index: -1
+frog
+  rotate: false
+  xy: 720, 446
+  size: 67, 72
+  orig: 67, 72
+  offset: 0, 0
+  index: -1
+ground
+  rotate: false
+  xy: 873, 802
+  size: 32, 160
+  orig: 32, 160
+  offset: 0, 0
+  index: -1
+house
+  rotate: false
+  xy: 2, 2
+  size: 256, 326
+  orig: 256, 326
+  offset: 0, 0
+  index: -1
+rock_edge
+  rotate: false
+  xy: 808, 606
+  size: 63, 356
+  orig: 63, 356
+  offset: 0, 0
+  index: -1
+rock_middle
+  rotate: false
+  xy: 720, 606
+  size: 86, 356
+  orig: 86, 356
+  offset: 0, 0
+  index: -1
+tree1
+  rotate: false
+  xy: 907, 886
+  size: 48, 76
+  orig: 48, 76
+  offset: 0, 0
+  index: -1
+tree2
+  rotate: false
+  xy: 294, 138
+  size: 48, 76
+  orig: 48, 76
+  offset: 0, 0
+  index: -1
+water_overlay
+  rotate: false
+  xy: 260, 54
+  size: 32, 160
+  orig: 32, 160
+  offset: 0, 0
+  index: -1
+
+murderkitty.pack2.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+bloodlust
+  rotate: false
+  xy: 2, 478
+  size: 542, 474
+  orig: 542, 474
+  offset: 0, 0
+  index: -1
+cat
+  rotate: false
+  xy: 2, 2
+  size: 542, 474
+  orig: 542, 474
+  offset: 0, 0
+  index: -1
+
+murderkitty.pack3.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+deadCat
+  rotate: false
+  xy: 2, 2
+  size: 556, 504
+  orig: 556, 504
+  offset: 0, 0
+  index: -1
+dog
+  rotate: false
+  xy: 2, 508
+  size: 547, 481
+  orig: 547, 481
+  offset: 0, 0
+  index: -1
+
+murderkitty.pack4.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+birdUp
+  rotate: false
+  xy: 2, 2
+  size: 716, 632
+  orig: 716, 632
+  offset: 0, 0
+  index: -1

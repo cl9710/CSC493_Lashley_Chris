@@ -1,5 +1,6 @@
 package com.lashleygdx.game.world;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
@@ -29,8 +30,8 @@ public class WorldController extends InputAdapter
 	public int lives;
 	public int birdScore;
 	public int frogScore;
-	public boolean dead;
 	private Game game;
+	public float livesVisual;
 
 	// rectangles for collision detection
 	private Rectangle r1 = new Rectangle();
@@ -45,7 +46,7 @@ public class WorldController extends InputAdapter
 		frogScore = 0;
 		level = new Level (Constants.LEVEL_01);
 		cameraHelper.setTarget(level.cat);
-		dead = false;
+		//		dead = false;
 	}
 
 	/**
@@ -65,6 +66,7 @@ public class WorldController extends InputAdapter
 		Gdx.input.setInputProcessor(this);
 		cameraHelper = new CameraHelper();
 		lives = Constants.LIVES_START;
+		livesVisual = lives;
 		timeLeftGameOverDelay = 0;
 		timeLeftDead = 0;
 		initLevel();
@@ -76,7 +78,7 @@ public class WorldController extends InputAdapter
 	 */
 	public void update (float deltaTime)
 	{
-		if (!dead)
+		if (!isDead() || isGameOver())
 		{
 			handleDebugInput(deltaTime);
 			if (isVictory())
@@ -95,20 +97,23 @@ public class WorldController extends InputAdapter
 			level.update(deltaTime);
 			testCollisions();
 			cameraHelper.update(deltaTime);
-			if (!isGameOver() && isPlayerInWater())
+			if (isPlayerInWater() && !isGameOver())
 			{
-				lives--;
-				if (isGameOver())
-					timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+				if (!isDead())
+				{
+					level.cat.freeze();
+					level.cat.dead = true;
+					timeLeftDead = Constants.TIME_DELAY_DEAD;
+					Gdx.app.log(TAG,  "Stay out of water");
+				}
 				else
-					initLevel();
+					return;
 			}
 		} else
 		{
 			if (isGameOver())
 			{
 				timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
-				dead = false;
 			} else
 			{
 				timeLeftDead -= deltaTime;
@@ -117,7 +122,6 @@ public class WorldController extends InputAdapter
 					lives--;
 					if (isGameOver())
 					{
-						dead = false;
 						timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
 					} else
 					{
@@ -125,6 +129,11 @@ public class WorldController extends InputAdapter
 					}
 				}
 			}
+		}
+		level.trees.updateScrollPosition(cameraHelper.getPosition());
+		if (livesVisual > lives)
+		{
+			livesVisual = Math.max(lives,  livesVisual - 1 * deltaTime);
 		}
 	}
 
@@ -197,20 +206,31 @@ public class WorldController extends InputAdapter
 
 	/**
 	 * handle cat / rock collisions
+	 * player can not pass through rocks normally
+	 * if they have a frog jump powerup you can jump/fly through the bottom
 	 * @param rock
 	 */
 	private void onCollisionCatWithRock (Rock rock)
 	{
 		Cat cat = level.cat;
 		float heightDifference = Math.abs(cat.position.y - (rock.position.y + rock.bounds.height));
-		if (heightDifference > 0.25f)
+		boolean below = (cat.position.y + cat.bounds.height) < (rock.position.y + 0.1f);
+
+		if (below)
 		{
-			boolean hitRightEdge = cat.position.x > (rock.position.x + rock.bounds.width / 2.0f);
+			cat.jumpState = JUMP_STATE.JUMP_FALLING;
+			cat.velocity.y = MathUtils.clamp(cat.velocity.y, -cat.terminalVelocity.y, 0.0f);
+			return;
+		}
+		if (heightDifference > 0.1f)
+		{
+			boolean hitRightEdge = cat.position.x > (rock.position.x + rock.bounds.width - 0.1f);
+			boolean hitLeftEdge = cat.position.x  < (rock.position.x);
+
 			if (hitRightEdge)
 			{
 				cat.position.x = rock.position.x + rock.bounds.width;
-			}
-			else
+			} else if (hitLeftEdge)
 			{
 				cat.position.x = rock.position.x - cat.bounds.width;
 			}
@@ -223,11 +243,11 @@ public class WorldController extends InputAdapter
 			break;
 		case FALLING:
 		case JUMP_FALLING:
-			cat.position.y = rock.position.y + cat.bounds.height + cat.origin.y;
+			cat.position.y = rock.position.y + cat.bounds.height;
 			cat.jumpState = JUMP_STATE.GROUNDED;
 			break;
 		case JUMP_RISING:
-			cat.position.y = rock.position.y + cat.bounds.height + cat.origin.y;
+			cat.position.y = rock.position.y + cat.bounds.height;
 			break;
 		}
 	}
@@ -270,6 +290,7 @@ public class WorldController extends InputAdapter
 			timeLeftGameOverDelay = Constants.TIME_DELAY_DEAD;
 
 			Cat cat = level.cat;
+			cat.freeze();
 			float heightDifference = Math.abs(cat.position.y - (house.position.y + house.bounds.height));
 			if (heightDifference > 0.25f)
 			{
@@ -294,9 +315,10 @@ public class WorldController extends InputAdapter
 	private void onCollisionCatWithDog (Dog dog)
 	{
 		if (!isGameOver())
-			if (!dead)
+			if (!level.cat.dead)
 			{
-				dead = true;
+				level.cat.freeze();
+				level.cat.dead = true;
 				timeLeftDead = Constants.TIME_DELAY_DEAD;
 				Gdx.app.log(TAG,  "Stay away from dogs");
 			}
@@ -406,6 +428,14 @@ public class WorldController extends InputAdapter
 	public boolean isVictory()
 	{
 		return level.house.reached;
+	}
+
+	/**
+	 * check for death
+	 */
+	public boolean isDead()
+	{
+		return level.cat.dead;
 	}
 
 	/**

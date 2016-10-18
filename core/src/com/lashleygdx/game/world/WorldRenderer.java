@@ -89,7 +89,7 @@ public class WorldRenderer implements Disposable
 	{
 		float x = -15;
 		float y = -15;
-		batch.draw(Assets.instance.bird.bird, x, y, 50, 50, 100, 100, 0.35f, -0.35f,  0);
+		batch.draw(Assets.instance.bird.birdUp, x, y, 50, 50, 100, 100, 0.35f, -0.35f,  0);
 		Assets.instance.fonts.defaultBig.draw(batch, "" + worldController.birdScore, x + 75, y + 37);
 	}
 
@@ -115,6 +115,18 @@ public class WorldRenderer implements Disposable
 		float y = -15;
 		batch.draw(Assets.instance.cat.cat, x, y, 50, 50, 120, 100, 0.35f, -0.35f, 0);
 		Assets.instance.fonts.defaultBig.draw(batch, "" + worldController.lives, x + 75, y + 37);
+
+		// lose a life animation
+		if (worldController.lives >= 0 && worldController.livesVisual > worldController.lives)
+		{
+//			int i = worldController.lives;
+			float alphaColor = Math.max(0,  worldController.livesVisual - worldController.lives - 0.5f);
+			float alphaScale = 0.35f * (2 + worldController.lives - worldController.livesVisual)* 2;
+			float alphaRotate = -35 * alphaColor;
+			batch.setColor(1.0f, 0.7f, 0.7f, alphaColor);
+			batch.draw(Assets.instance.cat.cat, x, y, 50, 50, 120, 100, alphaScale, -alphaScale, alphaRotate);
+			batch.setColor(1, 1, 1, 1);
+		}
 	}
 
 	/**
@@ -169,11 +181,14 @@ public class WorldRenderer implements Disposable
 			// draw fps text anchored to bottom right corner
 			if (GamePreferences.instance.showFpsCounter)
 				renderGuiFpsCounter(batch);
-			// draw game over text
 		}
-		renderGuiGameOverMessage(batch);
+		// draw dead text
+		renderGuiDeath(batch);
 		// draw victory text
 		renderGuiVictory(batch);
+		// draw game over text
+		renderGuiGameOverMessage(batch);
+
 		batch.end();
 	}
 
@@ -245,7 +260,7 @@ public class WorldRenderer implements Disposable
 					batch.setColor(1, 1, 1, 0.5f);
 				}
 			}
-			batch.draw(Assets.instance.bird.bird, x, y, 50, 50, 100, 100, 0.35f, -0.35f, 0);
+			batch.draw(Assets.instance.bird.birdUp, x, y, 50, 50, 100, 100, 0.35f, -0.35f, 0);
 			batch.setColor(1, 1, 1, 1);
 			Assets.instance.fonts.defaultSmall.draw(batch,  "" + (int)timeLeftBloodlust, x + 60, y + 57);
 		}
@@ -263,8 +278,26 @@ public class WorldRenderer implements Disposable
 		{
 			BitmapFont fontGameOver = Assets.instance.fonts.defaultBig;
 			fontGameOver.setColor(1, 0.74f, 0.25f, 1);
-			//fontGameOver.drawMultiLine(batch, "GAME OVER", x, y, 0, BitmapFont.HAlignment.CENTER); // not supported anymore
+			//fontGameOver.drawMultiLine(batch, "YOU WIN", x, y, 0, BitmapFont.HAlignment.CENTER); // not supported anymore
 			fontGameOver.draw(batch, "YOU WIN", x, y);
+			fontGameOver.setColor(1, 1, 1, 1);
+		}
+	}
+
+	/**
+	 * display death text
+	 * @param batch
+	 */
+	private void renderGuiDeath (SpriteBatch batch)
+	{
+		float x = cameraGUI.viewportWidth * 6 / 15;
+		float y = cameraGUI.viewportHeight / 2;
+		if (worldController.isDead() && !worldController.isGameOver())
+		{
+			BitmapFont fontGameOver = Assets.instance.fonts.defaultBig;
+			fontGameOver.setColor(1, 0.74f, 0.25f, 1);
+			//fontGameOver.drawMultiLine(batch, "YOU WIN", x, y, 0, BitmapFont.HAlignment.CENTER); // not supported anymore
+			fontGameOver.draw(batch, "YOU DIED", x, y);
 			fontGameOver.setColor(1, 1, 1, 1);
 		}
 	}

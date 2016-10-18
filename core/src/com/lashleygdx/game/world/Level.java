@@ -13,6 +13,7 @@ import com.lashleygdx.game.world.objects.Ground;
 import com.lashleygdx.game.world.objects.House;
 import com.lashleygdx.game.world.objects.Trees;
 import com.lashleygdx.game.world.objects.Rock;
+import com.lashleygdx.game.world.objects.Eyes;
 import com.lashleygdx.game.world.objects.WaterOverlay;
 
 /**
@@ -63,6 +64,7 @@ public class Level
 	public Trees trees;
 	public WaterOverlay waterOverlay;
 	public Ground ground;
+	public Eyes eyes;
 
 
 	/**
@@ -86,7 +88,6 @@ public class Level
 		birds = new Array<Bird>();
 		frogs = new Array<Frog>();
 		dogs = new Array<Dog>();
-		//		thorns = new Array<Thorn>();
 		house = null;
 
 		// load image file that represents the level data
@@ -131,7 +132,7 @@ public class Level
 				else if	(BLOCK_TYPE.PLAYER_SPAWNPOINT.sameColor(currentPixel))
 				{
 					obj = new Cat();
-					offsetHeight = -2.0f;
+					offsetHeight = -1.5f;
 					obj.position.set(pixelX, baseHeight + offsetHeight);
 					cat = (Cat)obj;
 					offsetHeight = 0;
@@ -140,7 +141,7 @@ public class Level
 				else if (BLOCK_TYPE.FROG.sameColor(currentPixel))
 				{
 					obj = new Frog();
-					offsetHeight = -2.1f;
+					offsetHeight = -2.6f;
 					obj.position.set(pixelX, baseHeight + offsetHeight);
 					frogs.add((Frog)obj);
 				}
@@ -148,7 +149,7 @@ public class Level
 				else if (BLOCK_TYPE.BIRD.sameColor(currentPixel))
 				{
 					obj = new Bird();
-					offsetHeight = -2.0f;
+					offsetHeight = -2.5f;
 					obj.position.set(pixelX, baseHeight + (obj.dimension.y / 2) + offsetHeight);
 					birds.add((Bird)obj);
 				}
@@ -156,7 +157,7 @@ public class Level
 				else if (BLOCK_TYPE.HOUSE.sameColor(currentPixel))
 				{
 					obj = new House();
-					offsetHeight = -2.1f;
+					offsetHeight = -2.6f;
 					obj.position.set(pixelX, baseHeight + offsetHeight);
 					house = (House)obj;
 				}
@@ -164,7 +165,7 @@ public class Level
 				else if (BLOCK_TYPE.DOG.sameColor(currentPixel))
 				{
 					obj = new Dog();
-					offsetHeight = -2.0f;
+					offsetHeight = -2.5f;
 					obj.position.set(pixelX, baseHeight + offsetHeight);
 					dogs.add((Dog)obj);
 				}
@@ -183,12 +184,14 @@ public class Level
 		}
 
 		// decoration
-		trees = new Trees (pixmap.getWidth());
+		trees = new Trees (pixmap.getWidth() + 20);
 		trees.position.set(-1, -1);
 		waterOverlay = new WaterOverlay (pixmap.getWidth());
 		waterOverlay.position.set(0, -3.71f);
 		ground = new Ground (pixmap.getWidth());
 		ground.position.set(0, -1.25f);
+		eyes = new Eyes (pixmap.getWidth());
+		eyes.position.set (0, 2);
 
 		// free memory
 		pixmap.dispose();
@@ -203,6 +206,9 @@ public class Level
 	{
 		// draw background
 		ground.render(batch);
+
+		// draw eyes
+		eyes.render(batch);
 
 		// draw trees
 		trees.render(batch);
@@ -246,5 +252,6 @@ public class Level
 			bird.update(deltaTime);
 		for (Frog frog : frogs)
 			frog.update(deltaTime);
+		eyes.update(deltaTime);
 	}
 }
