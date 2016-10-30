@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;	// not listed in book, needed for show()
 import com.lashleygdx.game.world.Assets;
 import com.lashleygdx.game.util.Constants;
+import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
 
@@ -321,7 +322,7 @@ public class MenuScreen extends AbstractGameScreen
 		prefs.sound = chkSound.isChecked();
 		prefs.volSound = sldSound.getValue();
 		prefs.music = chkMusic.isChecked();
-		prefs.volMusic = sldSound.getValue();
+		prefs.volMusic = sldMusic.getValue();
 		prefs.charSkin = selCharSkin.getSelectedIndex();
 		prefs.showFpsCounter = chkShowFpsCounter.isChecked();
 		prefs.save();
@@ -344,6 +345,7 @@ public class MenuScreen extends AbstractGameScreen
 	{
 		saveSettings();
 		onCancelClicked();
+		AudioManager.instance.onSettingsUpdated();
 	}
 
 	/**
@@ -354,6 +356,7 @@ public class MenuScreen extends AbstractGameScreen
 		btnMenuPlay.setVisible(true);
 		btnMenuOptions.setVisible(true);
 		winOptions.setVisible(false);
+		AudioManager.instance.onSettingsUpdated();
 	}
 
 	/**

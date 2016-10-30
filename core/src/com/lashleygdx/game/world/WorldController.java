@@ -14,6 +14,7 @@ import com.lashleygdx.game.world.objects.GoldCoin;
 import com.lashleygdx.game.world.objects.Rock;
 import com.badlogic.gdx.Game;
 import com.lashleygdx.game.screens.MenuScreen;
+import com.lashleygdx.game.util.AudioManager;
 
 /**
  * World Controller controls all the objects/assets in the game
@@ -88,6 +89,7 @@ public class WorldController extends InputAdapter
 		cameraHelper.update(deltaTime);
 		if (!isGameOver() && isPlayerInWater())
 		{
+			AudioManager.instance.play(Assets.instance.sounds.liveLost);
 			lives--;
 			if (isGameOver())
 			{
@@ -220,6 +222,7 @@ public class WorldController extends InputAdapter
 	private void onCollisionBunnyWithGoldCoin (GoldCoin goldCoin)
 	{
 		goldCoin.collected = true;
+		AudioManager.instance.play(Assets.instance.sounds.pickupCoin);
 		score += goldCoin.getScore();
 		Gdx.app.log(TAG,  "Gold coin collected");
 	}
@@ -231,6 +234,7 @@ public class WorldController extends InputAdapter
 	private void onCollisionBunnyWithFeather (Feather feather)
 	{
 		feather.collected = true;
+		AudioManager.instance.play(Assets.instance.sounds.pickupFeather);
 		score += feather.getScore();
 		level.bunnyHead.setFeatherPowerup(true);
 		Gdx.app.log(TAG, "Feather collected");
