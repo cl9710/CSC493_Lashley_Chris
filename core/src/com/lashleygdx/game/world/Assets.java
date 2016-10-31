@@ -84,14 +84,14 @@ public class Assets implements Disposable, AssetErrorListener
 	{
 		public final Sound jump;
 		public final Sound jumpWithFrog;
-		public final Sound wingsFlapping;
+		public final Sound wingsFlapping;		// not used atm
 		public final Sound deathExplosion;
 		public final Sound frog;
 		public final Sound catYell;
 		public final Sound dogAttack;
 		public final Sound splash;
-		public final Sound squawk;
-		public final Sound monkey;
+		public final Sound squawk;				// not used atm
+		public final Sound victory;
 
 		public AssetSounds (AssetManager am)
 		{
@@ -104,7 +104,7 @@ public class Assets implements Disposable, AssetErrorListener
 			dogAttack = am.get("sounds/dog_attack.wav", Sound.class);
 			splash = am.get("sounds/splash.wav", Sound.class);
 			squawk = am.get("sounds/squawk.wav", Sound.class);
-			monkey = am.get("sounds/disturbed_oohwahahahah.wav", Sound.class);
+			victory = am.get("sounds/victory.wav", Sound.class);
 		}
 	}
 
@@ -120,7 +120,7 @@ public class Assets implements Disposable, AssetErrorListener
 		public AssetMusic (AssetManager am)
 		{
 			normalSong = am.get("music/gold_saucer.mp3", Music.class);
-			bloodlustSong = am.get("music/Down_With_The_Sickness.mp3", Music.class);
+			bloodlustSong = am.get("music/dwts.mp3", Music.class);
 		}
 	}
 
@@ -145,9 +145,9 @@ public class Assets implements Disposable, AssetErrorListener
 		assetManager.load("sounds/dog_attack.wav", Sound.class);
 		assetManager.load("sounds/splash.wav", Sound.class);
 		assetManager.load("sounds/squawk.wav", Sound.class);
-		assetManager.load("sounds/disturbed_oohwahahahah.wav", Sound.class);
+		assetManager.load("sounds/victory.wav", Sound.class);
 		assetManager.load("music/gold_saucer.mp3", Music.class);
-		assetManager.load("music/Down_With_The_Sickness.mp3", Music.class);
+		assetManager.load("music/dwts.mp3", Music.class);
 		// start loading assets and wait until finished
 		assetManager.finishLoading();
 

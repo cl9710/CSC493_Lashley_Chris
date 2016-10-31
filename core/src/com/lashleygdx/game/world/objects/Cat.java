@@ -196,6 +196,7 @@ public class Cat extends AbstractGameObject
 			{
 				timeLeftBloodlust = 0;
 				hasBloodlust = false;
+				AudioManager.instance.play(Assets.instance.music.normalSong);
 				terminalVelocity.set(3.0f, 4.0f);
 
 			}

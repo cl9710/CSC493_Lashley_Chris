@@ -29,6 +29,7 @@ public class LashleyGdxGame extends Game
 
 		// Load preferences for audio settings and start playing music
 		GamePreferences.instance.load();
+//		AudioManager.instance.play(Assets.instance.music.test);
 		AudioManager.instance.play(Assets.instance.music.normalSong);
 
 		// start game at menu screen

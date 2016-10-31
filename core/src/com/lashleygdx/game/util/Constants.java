@@ -51,5 +51,5 @@ public class Constants
 	public static final String SKIN_MURDERKITTY_UI = "images/murderkitty-ui.json";
 
 	// preferences saved location
-	public static final String PREFERENCES = "murderkitty.prefs";
+	public static final String PREFERENCES = "game.prefs";
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
 import com.lashleygdx.game.util.Constants;
@@ -46,6 +47,7 @@ public class WorldController extends InputAdapter
 		birdScore = 0;
 		frogScore = 0;
 		level = new Level (Constants.LEVEL_01);
+		AudioManager.instance.play(Assets.instance.music.normalSong);
 		cameraHelper.setTarget(level.cat);
 		//		dead = false;
 	}
@@ -103,6 +105,7 @@ public class WorldController extends InputAdapter
 				if (!isDead())
 				{
 					level.cat.freeze();
+					AudioManager.instance.stopMusic();
 					AudioManager.instance.play(Assets.instance.sounds.splash);
 					level.cat.dead = true;
 					timeLeftDead = Constants.TIME_DELAY_DEAD;
@@ -261,12 +264,12 @@ public class WorldController extends InputAdapter
 	private void onCollisionCatWithBird (Bird bird)
 	{
 		bird.collected = true;
-		AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);
+//		AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);		// not sure i like
+//		AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
 		AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
 		birdScore += bird.getScore();
 		if (!level.cat.hasBloodlust)
 		{
-			AudioManager.instance.play(Assets.instance.sounds.monkey);
 			AudioManager.instance.play(Assets.instance.music.bloodlustSong);
 		}
 		level.cat.setBloodlust(true);
@@ -296,6 +299,8 @@ public class WorldController extends InputAdapter
 		{
 			if (!house.reached)
 				Gdx.app.log(TAG, "You made it home");
+			AudioManager.instance.stopMusic();
+			AudioManager.instance.play(Assets.instance.sounds.victory);
 			house.reached = true;
 			timeLeftGameOverDelay = Constants.TIME_DELAY_DEAD;
 
@@ -328,6 +333,7 @@ public class WorldController extends InputAdapter
 			if (!level.cat.dead)
 			{
 				level.cat.freeze();
+				AudioManager.instance.stopMusic();
 				AudioManager.instance.play(Assets.instance.sounds.catYell);
 				AudioManager.instance.play(Assets.instance.sounds.dogAttack);
 				level.cat.dead = true;
@@ -455,6 +461,7 @@ public class WorldController extends InputAdapter
 	 */
 	private void backToMenu()
 	{
+		AudioManager.instance.play(Assets.instance.music.normalSong);
 		game.setScreen(new MenuScreen(game));
 	}
 }
