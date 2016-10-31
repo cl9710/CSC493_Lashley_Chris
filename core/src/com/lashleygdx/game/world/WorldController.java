@@ -227,9 +227,9 @@ public class WorldController extends InputAdapter
 			cat.velocity.y = MathUtils.clamp(cat.velocity.y, -cat.terminalVelocity.y, 0.0f);
 			return;
 		}
-		if (heightDifference > 0.1f)
+		if (heightDifference >= 0.1f)
 		{
-			boolean hitRightEdge = cat.position.x > (rock.position.x + rock.bounds.width - 0.1f);
+			boolean hitRightEdge = cat.position.x > (rock.position.x + rock.bounds.width - 0.11f);
 			boolean hitLeftEdge = cat.position.x  < (rock.position.x);
 
 			if (hitRightEdge)
