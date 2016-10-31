@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 
 /**
  * Assets manages game assets
@@ -41,6 +43,8 @@ public class Assets implements Disposable, AssetErrorListener
 	public AssetLevelDecoration levelDecoration;
 
 	public AssetFonts fonts;
+	public AssetSounds sounds;
+	public AssetMusic music;
 
 	/**
 	 * fonts used in the game
@@ -73,6 +77,54 @@ public class Assets implements Disposable, AssetErrorListener
 	}
 
 	/**
+	 * Sounds
+	 * @author Chris Lashley
+	 */
+	public class AssetSounds
+	{
+		public final Sound jump;
+		public final Sound jumpWithFrog;
+		public final Sound wingsFlapping;
+		public final Sound deathExplosion;
+		public final Sound frog;
+		public final Sound catYell;
+		public final Sound dogAttack;
+		public final Sound splash;
+		public final Sound squawk;
+		public final Sound monkey;
+
+		public AssetSounds (AssetManager am)
+		{
+			jump = am.get("sounds/jump.wav", Sound.class);
+			jumpWithFrog = am.get("sounds/jump_with_frog.wav", Sound.class);
+			wingsFlapping = am.get("sounds/wings_flapping.wav", Sound.class);
+			deathExplosion = am.get("sounds/death_explosion.wav", Sound.class);
+			frog = am.get("sounds/frog.wav", Sound.class);
+			catYell = am.get("sounds/cat_yell.wav", Sound.class);
+			dogAttack = am.get("sounds/dog_attack.wav", Sound.class);
+			splash = am.get("sounds/splash.wav", Sound.class);
+			squawk = am.get("sounds/squawk.wav", Sound.class);
+			monkey = am.get("sounds/disturbed_oohwahahahah.wav", Sound.class);
+		}
+	}
+
+	/**
+	 * music
+	 * @author Chris
+	 */
+	public class AssetMusic
+	{
+		public final Music normalSong;
+		public final Music bloodlustSong;
+
+		public AssetMusic (AssetManager am)
+		{
+			normalSong = am.get("music/gold_saucer.mp3", Music.class);
+			bloodlustSong = am.get("music/Down_With_The_Sickness.mp3", Music.class);
+		}
+	}
+
+	/**
 	 * create the asset manager and assets
 	 * @param assetManager
 	 */
@@ -83,6 +135,19 @@ public class Assets implements Disposable, AssetErrorListener
 		assetManager.setErrorListener(this);
 		// load texture atlas
 		assetManager.load(Constants.TEXTURE_ATLAS_OBJECTS, TextureAtlas.class);
+		// load sounds
+		assetManager.load("sounds/jump.wav", Sound.class);
+		assetManager.load("sounds/jump_with_frog.wav", Sound.class);
+		assetManager.load("sounds/wings_flapping.wav", Sound.class);
+		assetManager.load("sounds/death_explosion.wav", Sound.class);
+		assetManager.load("sounds/frog.wav", Sound.class);
+		assetManager.load("sounds/cat_yell.wav", Sound.class);
+		assetManager.load("sounds/dog_attack.wav", Sound.class);
+		assetManager.load("sounds/splash.wav", Sound.class);
+		assetManager.load("sounds/squawk.wav", Sound.class);
+		assetManager.load("sounds/disturbed_oohwahahahah.wav", Sound.class);
+		assetManager.load("music/gold_saucer.mp3", Music.class);
+		assetManager.load("music/Down_With_The_Sickness.mp3", Music.class);
 		// start loading assets and wait until finished
 		assetManager.finishLoading();
 
@@ -92,23 +157,25 @@ public class Assets implements Disposable, AssetErrorListener
 			Gdx.app.debug(TAG,  "asset: " + a);
 		}
 
-	TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_OBJECTS);
+		TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_OBJECTS);
 
-	// enable texture filtering for pixel smoothing
-	for (Texture t : atlas.getTextures())
-	{
-		t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-	}
+		// enable texture filtering for pixel smoothing
+		for (Texture t : atlas.getTextures())
+		{
+			t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
 
-	// create game resource objects
-	fonts = new AssetFonts();
-	cat = new AssetCat(atlas);
-	rock = new AssetRock(atlas);
-	bird = new AssetBird(atlas);
-	frog = new AssetFrog(atlas);
-	dog = new AssetDog(atlas);
-	house = new AssetHouse(atlas);
-	levelDecoration = new AssetLevelDecoration(atlas);
+		// create game resource objects
+		fonts = new AssetFonts();
+		cat = new AssetCat(atlas);
+		rock = new AssetRock(atlas);
+		bird = new AssetBird(atlas);
+		frog = new AssetFrog(atlas);
+		dog = new AssetDog(atlas);
+		house = new AssetHouse(atlas);
+		levelDecoration = new AssetLevelDecoration(atlas);
+		sounds = new AssetSounds(assetManager);
+		music = new AssetMusic(assetManager);
 	}
 
 	/**

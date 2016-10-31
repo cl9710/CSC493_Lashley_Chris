@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
+import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.math.MathUtils;
 
 /**
  * player character
@@ -102,6 +104,8 @@ public class Cat extends AbstractGameObject
 		case GROUNDED:	// character is standing on a platform
 			if (jumpKeyPressed)
 			{
+				AudioManager.instance.play(Assets.instance.sounds.jump);
+				// start jump time
 				timeJumping = 0;
 				jumpState = JUMP_STATE.JUMP_RISING;
 			}
@@ -114,6 +118,7 @@ public class Cat extends AbstractGameObject
 		case JUMP_FALLING:	// falling down after jump
 			if (jumpKeyPressed && hasFrogPowerup)
 			{
+				AudioManager.instance.play(Assets.instance.sounds.jumpWithFrog, 1, MathUtils.random(1.0f, 1.1f));
 				timeJumping = JUMP_TIME_OFFSET_FLYING;
 				jumpState = JUMP_STATE.JUMP_RISING;
 			}

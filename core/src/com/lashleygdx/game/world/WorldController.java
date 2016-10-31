@@ -17,6 +17,7 @@ import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
 import com.lashleygdx.game.world.objects.Dog;
 import com.badlogic.gdx.Game;
 import com.lashleygdx.game.screens.MenuScreen;
+import com.lashleygdx.game.util.AudioManager;
 
 /**
  * World Controller controls all the objects/assets in the game
@@ -102,6 +103,7 @@ public class WorldController extends InputAdapter
 				if (!isDead())
 				{
 					level.cat.freeze();
+					AudioManager.instance.play(Assets.instance.sounds.splash);
 					level.cat.dead = true;
 					timeLeftDead = Constants.TIME_DELAY_DEAD;
 					Gdx.app.log(TAG,  "Stay out of water");
@@ -259,7 +261,14 @@ public class WorldController extends InputAdapter
 	private void onCollisionCatWithBird (Bird bird)
 	{
 		bird.collected = true;
+		AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);
+		AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
 		birdScore += bird.getScore();
+		if (!level.cat.hasBloodlust)
+		{
+			AudioManager.instance.play(Assets.instance.sounds.monkey);
+			AudioManager.instance.play(Assets.instance.music.bloodlustSong);
+		}
 		level.cat.setBloodlust(true);
 		Gdx.app.log(TAG,  "Bird murdered");
 	}
@@ -271,6 +280,7 @@ public class WorldController extends InputAdapter
 	private void onCollisionCatWithFrog (Frog frog)
 	{
 		frog.collected = true;
+		AudioManager.instance.play(Assets.instance.sounds.frog);
 		frogScore += frog.getScore();
 		level.cat.setFrogPowerup(true);
 		Gdx.app.log(TAG, "Frog murdered");
@@ -318,6 +328,8 @@ public class WorldController extends InputAdapter
 			if (!level.cat.dead)
 			{
 				level.cat.freeze();
+				AudioManager.instance.play(Assets.instance.sounds.catYell);
+				AudioManager.instance.play(Assets.instance.sounds.dogAttack);
 				level.cat.dead = true;
 				timeLeftDead = Constants.TIME_DELAY_DEAD;
 				Gdx.app.log(TAG,  "Stay away from dogs");
