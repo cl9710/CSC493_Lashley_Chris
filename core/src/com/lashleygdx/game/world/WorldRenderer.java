@@ -8,6 +8,9 @@ import com.lashleygdx.game.util.Constants;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.lashleygdx.game.util.GamePreferences;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 /**
  * World Renderer draws assets/objects/world
@@ -19,6 +22,10 @@ public class WorldRenderer implements Disposable
 	private SpriteBatch batch;
 	private WorldController worldController;
 	private OrthographicCamera cameraGUI;
+
+	private static final boolean DEBUG_DRAW_BOX2D_WORLD = false;
+	private Box2DDebugRenderer b2debugRenderer;
+	private ShaderProgram shaderMonochrome;
 
 	/**
 	 * get or create the world renderer
@@ -43,6 +50,13 @@ public class WorldRenderer implements Disposable
 		cameraGUI.position.set(0, 0, 0);
 		cameraGUI.setToOrtho(true);	// flip y axis
 		cameraGUI.update();
+		b2debugRenderer = new Box2DDebugRenderer();
+		shaderMonochrome = new ShaderProgram(Gdx.files.internal(Constants.shaderMonochromeVertex), Gdx.files.internal(Constants.shaderMonochromeFragment));
+		if (!shaderMonochrome.isCompiled())
+		{
+			String msg = "Could not compile shader program: " + shaderMonochrome.getLog();
+			throw new GdxRuntimeException(msg);
+		}
 	}
 
 	/**
@@ -63,8 +77,18 @@ public class WorldRenderer implements Disposable
 		worldController.cameraHelper.applyTo(camera);
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
+		if (GamePreferences.instance.useMonochromeShader)
+		{
+			batch.setShader(shaderMonochrome);
+			shaderMonochrome.setUniformf("u_amount", 1.0f);
+		}
 		worldController.level.render(batch);
+		batch.setShader(null);
 		batch.end();
+		if (DEBUG_DRAW_BOX2D_WORLD)
+		{
+			b2debugRenderer.render(worldController.b2world,  camera.combined);
+		}
 	}
 
 	/**
@@ -192,6 +216,7 @@ public class WorldRenderer implements Disposable
 	@Override public void dispose ()
 	{
 		batch.dispose();
+		shaderMonochrome.dispose();
 	}
 
 	/**

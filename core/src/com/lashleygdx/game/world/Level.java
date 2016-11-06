@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
+import com.lashleygdx.game.world.Level.BLOCK_TYPE;
 import com.lashleygdx.game.world.objects.AbstractGameObject;
 import com.lashleygdx.game.world.objects.BunnyHead;
 import com.lashleygdx.game.world.objects.Clouds;
@@ -12,6 +13,8 @@ import com.lashleygdx.game.world.objects.GoldCoin;
 import com.lashleygdx.game.world.objects.Mountains;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.WaterOverlay;
+import com.lashleygdx.game.world.objects.Carrot;
+import com.lashleygdx.game.world.objects.Goal;
 
 /**
  * level data
@@ -24,6 +27,7 @@ public class Level
 	public enum BLOCK_TYPE
 	{
 		EMPTY (0, 0, 0), // black
+		GOAL (255, 0, 0),	// red
 		ROCK (0, 255, 0), // green
 		PLAYER_SPAWNPOINT (255, 255, 255), // white
 		ITEM_FEATHER (255, 0, 255), // purple
@@ -49,12 +53,18 @@ public class Level
 
 	// objects
 	public Array<Rock> rocks;
+	public Array<Carrot> carrots;
+	public Goal goal;
 
 	// decoration
 	public Clouds clouds;
 	public Mountains mountains;
 	public WaterOverlay waterOverlay;
+
+	// player
 	public BunnyHead bunnyHead;
+
+	// items
 	public Array<GoldCoin> goldCoins;
 	public Array<Feather> feathers;
 
@@ -79,6 +89,7 @@ public class Level
 		rocks = new Array<Rock>();
 		goldCoins = new Array<GoldCoin>();
 		feathers = new Array<Feather>();
+		carrots = new Array<Carrot>();
 
 		// load image file that represents the level data
 		Pixmap pixmap = new Pixmap (Gdx.files.internal(filename));
@@ -143,6 +154,14 @@ public class Level
 					obj.position.set(pixelX, baseHeight * obj.dimension.y + offsetHeight);
 					goldCoins.add((GoldCoin)obj);
 				}
+				// goal
+				else if (BLOCK_TYPE.GOAL.sameColor(currentPixel))
+				{
+					obj = new Goal();
+					offsetHeight = -7.0f;
+					obj.position.set(pixelX, baseHeight + offsetHeight);
+					goal = (Goal)obj;
+				}
 				// unknown object/pixel color
 				else
 				{
@@ -179,6 +198,9 @@ public class Level
 		// draw mountains
 		mountains.render(batch);
 
+		// draw goal
+		goal.render(batch);
+
 		// draw rocks
 		for (Rock rock : rocks)
 			rock.render(batch);
@@ -190,6 +212,10 @@ public class Level
 		// draw feathers
 		for (Feather feather : feathers)
 			feather.render(batch);
+
+		// draw carrots
+		for (Carrot carrot : carrots)
+			carrot.render(batch);
 
 		// draw player characters (bunny head)
 		bunnyHead.render(batch);
@@ -214,6 +240,8 @@ public class Level
 			goldCoin.update(deltaTime);
 		for (Feather feather : feathers)
 			feather.update(deltaTime);
+		for (Carrot carrot : carrots)
+			carrot.update(deltaTime);
 		clouds.update(deltaTime);
 	}
 }

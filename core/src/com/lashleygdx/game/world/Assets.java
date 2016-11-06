@@ -75,6 +75,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	/**
+	 * sound effect assets
+	 * @author Chris Lashley
+	 */
 	public class AssetSounds
 	{
 		public final Sound jump;
@@ -93,6 +97,10 @@ public class Assets implements Disposable, AssetErrorListener
 		}
 	}
 
+	/**
+	 * music assets
+	 * @author Chris Lashley
+	 */
 	public class AssetMusic
 	{
 		public final Music song01;
@@ -130,23 +138,23 @@ public class Assets implements Disposable, AssetErrorListener
 			Gdx.app.debug(TAG,  "asset: " + a);
 		}
 
-	TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_OBJECTS);
+		TextureAtlas atlas = assetManager.get(Constants.TEXTURE_ATLAS_OBJECTS);
 
-	// enable texture filtering for pixel smoothing
-	for (Texture t : atlas.getTextures())
-	{
-		t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-	}
+		// enable texture filtering for pixel smoothing
+		for (Texture t : atlas.getTextures())
+		{
+			t.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		}
 
-	// create game resource objects
-	fonts = new AssetFonts();
-	bunny = new AssetBunny(atlas);
-	rock = new AssetRock(atlas);
-	goldCoin = new AssetGoldCoin(atlas);
-	feather = new AssetFeather(atlas);
-	levelDecoration = new AssetLevelDecoration(atlas);
-	sounds = new AssetSounds(assetManager);
-	music = new AssetMusic(assetManager);
+		// create game resource objects
+		fonts = new AssetFonts();
+		bunny = new AssetBunny(atlas);
+		rock = new AssetRock(atlas);
+		goldCoin = new AssetGoldCoin(atlas);
+		feather = new AssetFeather(atlas);
+		levelDecoration = new AssetLevelDecoration(atlas);
+		sounds = new AssetSounds(assetManager);
+		music = new AssetMusic(assetManager);
 	}
 
 	/**
@@ -252,6 +260,8 @@ public class Assets implements Disposable, AssetErrorListener
 		public final AtlasRegion mountainLeft;
 		public final AtlasRegion mountainRight;
 		public final AtlasRegion waterOverlay;
+		public final AtlasRegion carrot;
+		public final AtlasRegion goal;
 
 		public AssetLevelDecoration (TextureAtlas atlas)
 		{
@@ -261,6 +271,8 @@ public class Assets implements Disposable, AssetErrorListener
 			mountainLeft = atlas.findRegion("mountain_left");
 			mountainRight = atlas.findRegion("mountain_right");
 			waterOverlay = atlas.findRegion("water_overlay");
+			carrot = atlas.findRegion("carrot");
+			goal = atlas.findRegion("goal");
 		}
 	}
 }
