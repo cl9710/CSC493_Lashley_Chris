@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
+import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
 import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
@@ -135,7 +136,7 @@ public class Cat extends AbstractGameObject
 	{
 		hasFrogPowerup = pickedUp;
 		if (pickedUp)
-			timeLeftFrogPowerup = Constants.ITEM_FROG_POWERUP_DURATION;
+			timeLeftFrogPowerup += Constants.ITEM_FROG_POWERUP_DURATION;
 	}
 
 	/**
@@ -298,7 +299,10 @@ public class Cat extends AbstractGameObject
 	 */
 	public void freeze()
 	{
-		velocity.set(0, 0);
+		if (jumpState != JUMP_STATE.GROUNDED)
+			velocity.set(0, -9.81f);
+		else
+			velocity.set(0, 0);
 		acceleration.set(0, 0);
 	}
 }

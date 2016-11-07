@@ -113,6 +113,7 @@ public class MenuScreen extends AbstractGameScreen
 	@Override
 	public void show()
 	{
+		AudioManager.instance.play(Assets.instance.music.normalSong);
 		stage = new Stage(new StretchViewport(Constants.VIEWPORT_GUI_WIDTH, Constants.VIEWPORT_GUI_HEIGHT));
 		Gdx.input.setInputProcessor(stage);
 		rebuildStage();

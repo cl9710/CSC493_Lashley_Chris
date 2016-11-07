@@ -1,0 +1,132 @@
+
+murderkitty.pack.png
+size: 512,512
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+birdDown
+  rotate: false
+  xy: 359, 399
+  size: 100, 88
+  orig: 100, 88
+  offset: 0, 0
+  index: -1
+birdUp
+  rotate: false
+  xy: 155, 128
+  size: 100, 88
+  orig: 100, 88
+  offset: 0, 0
+  index: -1
+bloodlust
+  rotate: false
+  xy: 223, 291
+  size: 100, 87
+  orig: 100, 87
+  offset: 0, 0
+  index: -1
+cat
+  rotate: false
+  xy: 325, 307
+  size: 100, 87
+  orig: 100, 87
+  offset: 0, 0
+  index: -1
+deadBird
+  rotate: false
+  xy: 104, 38
+  size: 100, 88
+  orig: 100, 88
+  offset: 0, 0
+  index: -1
+deadCat
+  rotate: false
+  xy: 257, 396
+  size: 100, 91
+  orig: 100, 91
+  offset: 0, 0
+  index: -1
+dog
+  rotate: false
+  xy: 206, 38
+  size: 100, 88
+  orig: 100, 88
+  offset: 0, 0
+  index: -1
+eye01
+  rotate: false
+  xy: 325, 229
+  size: 100, 76
+  orig: 100, 76
+  offset: 0, 0
+  index: -1
+eye02
+  rotate: false
+  xy: 359, 153
+  size: 100, 74
+  orig: 100, 74
+  offset: 0, 0
+  index: -1
+eye03
+  rotate: false
+  xy: 257, 151
+  size: 100, 76
+  orig: 100, 76
+  offset: 0, 0
+  index: -1
+frog
+  rotate: false
+  xy: 155, 380
+  size: 100, 107
+  orig: 100, 107
+  offset: 0, 0
+  index: -1
+ground
+  rotate: false
+  xy: 155, 218
+  size: 32, 160
+  orig: 32, 160
+  offset: 0, 0
+  index: -1
+house
+  rotate: false
+  xy: 2, 2
+  size: 100, 127
+  orig: 100, 127
+  offset: 0, 0
+  index: -1
+rock_edge
+  rotate: false
+  xy: 90, 131
+  size: 63, 356
+  orig: 63, 356
+  offset: 0, 0
+  index: -1
+rock_middle
+  rotate: false
+  xy: 2, 131
+  size: 86, 356
+  orig: 86, 356
+  offset: 0, 0
+  index: -1
+tree1
+  rotate: false
+  xy: 461, 411
+  size: 48, 76
+  orig: 48, 76
+  offset: 0, 0
+  index: -1
+tree2
+  rotate: false
+  xy: 427, 321
+  size: 48, 76
+  orig: 48, 76
+  offset: 0, 0
+  index: -1
+water_overlay
+  rotate: false
+  xy: 189, 218
+  size: 32, 160
+  orig: 32, 160
+  offset: 0, 0
+  index: -1

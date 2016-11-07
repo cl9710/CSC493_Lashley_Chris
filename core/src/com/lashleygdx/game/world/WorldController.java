@@ -8,10 +8,12 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
+//import com.lashleygdx.game.util.CollisionHandler;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.objects.Cat;
 import com.lashleygdx.game.world.objects.Frog;
 import com.lashleygdx.game.world.objects.House;
+import com.lashleygdx.game.world.objects.AbstractGameObject;
 import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
@@ -19,12 +21,22 @@ import com.lashleygdx.game.world.objects.Dog;
 import com.badlogic.gdx.Game;
 import com.lashleygdx.game.screens.MenuScreen;
 import com.lashleygdx.game.util.AudioManager;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
+//import com.badlogic.gdx.utils.Disposable;
 
 /**
  * World Controller controls all the objects/assets in the game
  * @author Chris Lashley
  */
-public class WorldController extends InputAdapter
+public class WorldController extends InputAdapter// implements Disposable
 {
 	private static final String TAG = WorldController.class.getName();
 	public CameraHelper cameraHelper;
@@ -34,6 +46,7 @@ public class WorldController extends InputAdapter
 	public int frogScore;
 	private Game game;
 	public float livesVisual;
+	public int levelNum;
 
 	// rectangles for collision detection
 	private Rectangle r1 = new Rectangle();
@@ -42,14 +55,21 @@ public class WorldController extends InputAdapter
 	private float timeLeftGameOverDelay;
 	private float timeLeftDead;
 
+	public World b2world;
+	public Array<AbstractGameObject> objectsToRemove;
+
+	/**
+	 * initialize a level
+	 */
 	private void initLevel()
 	{
 		birdScore = 0;
 		frogScore = 0;
-		level = new Level (Constants.LEVEL_01);
+		level = new Level(Constants.LEVEL_01);
 		AudioManager.instance.play(Assets.instance.music.normalSong);
 		cameraHelper.setTarget(level.cat);
-		//		dead = false;
+		objectsToRemove = new Array<AbstractGameObject>();
+		initPhysics();
 	}
 
 	/**
@@ -72,33 +92,134 @@ public class WorldController extends InputAdapter
 		livesVisual = lives;
 		timeLeftGameOverDelay = 0;
 		timeLeftDead = 0;
+		levelNum = 0;
 		initLevel();
 	}
 
 	/**
-	 * update the game variables
+	 * tells the game which level to load
+	 * @param currentLevel is the level you want to load
+	 * @return level to load
+	 */
+	public String getNextLevel(int currentLevel)
+	{
+		for (int i = currentLevel; i < Constants.NUM_LEVELS; i++)
+		{
+			if (i == 0)
+				return Constants.LEVEL_01;
+			if (i == 1)
+				return Constants.LEVEL_02;
+		}
+		backToMenu();
+		return null;
+	}
+
+//	/**
+//	 * update the game variables (multiple levels)
+//	 * @param deltaTime
+//	 */
+//	public void update (float deltaTime)
+//	{
+//		if (objectsToRemove.size > 0)
+//			removeObjects(deltaTime);
+//		if (!isDead() || isGameOver())
+//		{
+//			handleDebugInput(deltaTime);
+//			if (isVictory())
+//			{
+//				timeLeftGameOverDelay -= deltaTime;
+//				if (timeLeftGameOverDelay < 0)
+//				{
+//					AudioManager.instance.stopMusic();
+//					if (levelNum < Constants.NUM_LEVELS)
+//						initLevel();
+//					else
+//					{
+//						backToMenu();
+//					}
+//				}
+//			}
+//			else if (isGameOver())
+//			{
+//				timeLeftGameOverDelay -= deltaTime;
+//				if (timeLeftGameOverDelay < 0)
+//					backToMenu();
+//			} else
+//			{
+//				handleInputGame(deltaTime);
+//			}
+//			level.update(deltaTime);
+//			testCollisions();
+//			b2world.step(deltaTime,  8,  3);
+//			cameraHelper.update(deltaTime);
+//			if (isPlayerInWater() && !isGameOver())
+//			{
+//				if (!isDead())
+//				{
+//					level.cat.freeze();
+//					AudioManager.instance.stopMusic();
+//					AudioManager.instance.play(Assets.instance.sounds.splash);
+//					level.cat.dead = true;
+//					timeLeftDead = Constants.TIME_DELAY_DEAD;
+//					Gdx.app.log(TAG,  "Stay out of water");
+//				}
+//				else
+//					return;
+//			}
+//		} else
+//		{
+//			if (isGameOver())
+//			{
+//				timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+//			} else
+//			{
+//				timeLeftDead -= deltaTime;
+//				if (timeLeftDead < 0)
+//				{
+//					lives--;
+//					if (isGameOver())
+//					{
+//						timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+//					} else
+//					{
+//						initLevel();
+//					}
+//				}
+//			}
+//		}
+//		level.trees.updateScrollPosition(cameraHelper.getPosition());
+//		if (livesVisual > lives)
+//		{
+//			livesVisual = Math.max(lives,  livesVisual - 1 * deltaTime);
+//		}
+//	}
+
+	/**
+	 * update the game variables (single level)
 	 * @param deltaTime
 	 */
 	public void update (float deltaTime)
 	{
+		if (objectsToRemove.size > 0)
+			removeObjects(deltaTime);
 		if (!isDead() || isGameOver())
 		{
 			handleDebugInput(deltaTime);
-			if (isVictory())
+			if (isVictory() || isGameOver())
 			{
 				timeLeftGameOverDelay -= deltaTime;
-				if (timeLeftGameOverDelay < 0) backToMenu();
-			}
-			if (isGameOver())
-			{
-				timeLeftGameOverDelay -= deltaTime;
-				if (timeLeftGameOverDelay < 0) backToMenu();
+				if (timeLeftGameOverDelay < 0)
+				{
+					AudioManager.instance.stopMusic();
+					backToMenu();
+				}
 			} else
 			{
 				handleInputGame(deltaTime);
 			}
 			level.update(deltaTime);
 			testCollisions();
+			b2world.step(deltaTime,  8,  3);
 			cameraHelper.update(deltaTime);
 			if (isPlayerInWater() && !isGameOver())
 			{
@@ -263,17 +384,21 @@ public class WorldController extends InputAdapter
 	 */
 	private void onCollisionCatWithBird (Bird bird)
 	{
-		bird.collected = true;
-//		AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);		// not sure i like
-//		AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
-		AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
-		birdScore += bird.getScore();
-		if (!level.cat.hasBloodlust)
+		if (!isVictory())
 		{
-			AudioManager.instance.play(Assets.instance.music.bloodlustSong);
+			bird.collected = true;
+			//			AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);		// not sure i like
+			//			AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
+			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
+			birdScore += bird.getScore();
+			if (!level.cat.hasBloodlust)
+			{
+				AudioManager.instance.play(Assets.instance.music.bloodlustSong);
+			}
+			level.cat.setBloodlust(true);
+			flagForRemoval(bird);
+			Gdx.app.log(TAG,  "Bird murdered");
 		}
-		level.cat.setBloodlust(true);
-		Gdx.app.log(TAG,  "Bird murdered");
 	}
 
 	/**
@@ -286,6 +411,7 @@ public class WorldController extends InputAdapter
 		AudioManager.instance.play(Assets.instance.sounds.frog);
 		frogScore += frog.getScore();
 		level.cat.setFrogPowerup(true);
+		flagForRemoval(frog);
 		Gdx.app.log(TAG, "Frog murdered");
 	}
 
@@ -302,24 +428,17 @@ public class WorldController extends InputAdapter
 			AudioManager.instance.stopMusic();
 			AudioManager.instance.play(Assets.instance.sounds.victory);
 			house.reached = true;
-			timeLeftGameOverDelay = Constants.TIME_DELAY_DEAD;
+			timeLeftGameOverDelay = Constants.TIME_DELAY_LEVEL_FINISHED;
 
 			Cat cat = level.cat;
+			if (cat.jumpState != JUMP_STATE.GROUNDED)
+				cat.jumpState = JUMP_STATE.JUMP_FALLING;
 			cat.freeze();
-			float heightDifference = Math.abs(cat.position.y - (house.position.y + house.bounds.height));
-			if (heightDifference > 0.25f)
-			{
-				boolean hitRightEdge = cat.position.x > (house.position.x + house.bounds.width / 2.0f);
-				if (hitRightEdge)
-				{
-					cat.position.x = house.position.x + house.bounds.width;
-				}
-				else
-				{
-					cat.position.x = house.position.x - cat.bounds.width;
-				}
-				return;
-			}
+			levelNum++;
+
+			Vector2 playerCenter = new Vector2(level.cat.position);
+			playerCenter.x += level.cat.bounds.width;
+			spawnDeadBirds(playerCenter, birdScore, Constants.BIRDS_SPAWN_RADIUS);
 		}
 	}
 
@@ -382,6 +501,7 @@ public class WorldController extends InputAdapter
 			r2.set(dog.position.x + dog.origin.x, dog.position.y, dog.bounds.width, dog.bounds.height);
 			if (!r1.overlaps(r2)) continue;
 			onCollisionCatWithDog(dog);
+			break;
 		}
 		// test collision: cat <--> house
 		r2.set(level.house.position.x, level.house.position.y, level.house.bounds.width, level.house.bounds.height);
@@ -461,7 +581,201 @@ public class WorldController extends InputAdapter
 	 */
 	private void backToMenu()
 	{
-		AudioManager.instance.play(Assets.instance.music.normalSong);
 		game.setScreen(new MenuScreen(game));
 	}
+
+	/**
+	 * make it rain birds when the goal is reached
+	 * @param pos
+	 * @param numBirds
+	 * @param radius
+	 */
+	private void spawnDeadBirds (Vector2 pos, int numBirds, float radius)
+	{
+		float birdShapeScale = 0.5f;
+
+		// create birds with box2d body and fixture
+		for (int i = 0; i < numBirds; i++)
+		{
+			Bird deadBird = new Bird();
+			deadBird.isDead();
+			// calculate random spawn position, rotation, and scale
+			//			float x = MathUtils.random(-radius, radius);
+			//			float y = MathUtils.random(5.0f, 15.0f);
+			float rotation = MathUtils.random(0.0f, 360.0f) * MathUtils.degreesToRadians;
+			float birdScale = MathUtils.random(0.5f, 1.0f);
+			deadBird.scale.set(birdScale, birdScale);
+			// create box2d body for deadBirds with start position and angle of rotation
+			BodyDef bodyDef = new BodyDef();
+			bodyDef.position.set(pos);
+			//			bodyDef.position.add(x, y);
+			bodyDef.angle = rotation;
+			Body body = b2world.createBody(bodyDef);
+			body.setType(BodyType.DynamicBody);
+			deadBird.body = body;
+			// create rectangular shape for deadBirds to allow interactions (collisions) with other objects
+			PolygonShape polygonShape = new PolygonShape();
+			float halfWidth = deadBird.bounds.width / 2.0f * birdScale;
+			float halfHeight = deadBird.bounds.height / 2.0f * birdScale;
+			polygonShape.setAsBox(halfWidth * birdShapeScale, halfHeight * birdShapeScale);
+			// set physical attributes
+			FixtureDef fixtureDef = new FixtureDef();
+			fixtureDef.shape = polygonShape;
+			fixtureDef.density = 50;
+			fixtureDef.restitution = 0.5f;
+			fixtureDef.friction = 0.5f;
+			body.createFixture(fixtureDef);
+			polygonShape.dispose();
+			// finally, add new deadBird to list for updating/rendering
+			level.deadBirds.add(deadBird);
+		}
+	}
+
+	/**
+	 * initialize box2d physics
+	 */
+	private void initPhysics ()
+	{
+		if (b2world != null) b2world.dispose();
+
+		b2world = new World(new Vector2(0, -9.81f), true);
+		// rocks
+		Vector2 origin = new Vector2();
+		for (Rock rock : level.rocks)
+		{
+			BodyDef bodyDef = new BodyDef();
+			bodyDef.type = BodyType.KinematicBody;
+			bodyDef.position.set(rock.position);
+			Body body = b2world.createBody(bodyDef);
+			rock.body = body;
+			PolygonShape polygonShape = new PolygonShape();
+			origin.x = rock.bounds.width / 2.0f;
+			origin.y = rock.bounds.height / 2.0f;
+			polygonShape.setAsBox(rock.bounds.width / 2.0f, rock.bounds.height / 2.0f, origin, 0);
+			FixtureDef fixtureDef = new FixtureDef();
+			fixtureDef.shape = polygonShape;
+			body.createFixture(fixtureDef);
+			polygonShape.dispose();
+		}
+		// birds
+		origin = new Vector2();
+		for (Bird bird : level.birds)
+		{
+			BodyDef bodyDef = new BodyDef();
+			bodyDef.type = BodyType.KinematicBody;
+			bodyDef.position.set(bird.position);
+			Body body = b2world.createBody(bodyDef);
+			bird.body = body;
+			PolygonShape polygonShape = new PolygonShape();
+			origin.x = bird.bounds.width / 2.0f;
+			origin.y = bird.bounds.height / 2.0f;
+			polygonShape.setAsBox(bird.bounds.width / 2.0f, bird.bounds.height / 2.0f, origin, 0);
+			FixtureDef fixtureDef = new FixtureDef();
+			fixtureDef.shape = polygonShape;
+			body.createFixture(fixtureDef);
+			polygonShape.dispose();
+		}
+		// dogs
+		origin = new Vector2();
+		for (Dog dog : level.dogs)
+		{
+			BodyDef bodyDef = new BodyDef();
+			bodyDef.type = BodyType.DynamicBody;
+			bodyDef.position.set(dog.position);
+			Body body = b2world.createBody(bodyDef);
+			dog.body = body;
+			PolygonShape polygonShape = new PolygonShape();
+			origin.x = dog.bounds.width / 2.0f;
+			origin.y = dog.bounds.height / 2.0f;
+			polygonShape.setAsBox(dog.bounds.width / 2.0f, dog.bounds.height / 2.0f, origin, 0);
+			FixtureDef fixtureDef = new FixtureDef();
+			fixtureDef.shape = polygonShape;
+			body.createFixture(fixtureDef);
+			polygonShape.dispose();
+		}
+		// frogs
+		origin = new Vector2();
+		for (Frog frog : level.frogs)
+		{
+			BodyDef bodyDef = new BodyDef();
+			bodyDef.type = BodyType.DynamicBody;
+			bodyDef.position.set(frog.position);
+			Body body = b2world.createBody(bodyDef);
+			frog.body = body;
+			PolygonShape polygonShape = new PolygonShape();
+			origin.x = frog.bounds.width / 2.0f;
+			origin.y = frog.bounds.height / 2.0f;
+			polygonShape.setAsBox(frog.bounds.width / 2.0f, frog.bounds.height / 2.0f, origin, 0);
+			FixtureDef fixtureDef = new FixtureDef();
+			fixtureDef.shape = polygonShape;
+			body.createFixture(fixtureDef);
+			polygonShape.dispose();
+		}
+	}
+
+	/**
+	 * flag a box2d object for removal
+	 * @param obj
+	 */
+	public void flagForRemoval(AbstractGameObject obj)
+	{
+		objectsToRemove.add(obj);
+	}
+
+	/**
+	 * remove flagged box2d objects when done with them
+	 * @param deltaTime
+	 */
+	public void removeObjects(float deltaTime)
+	{
+		{
+			for (AbstractGameObject obj : objectsToRemove)
+			{
+				if (obj instanceof Bird)
+				{
+					if (obj.removeIn > 0)
+					{
+						obj.removeIn -= deltaTime;
+					} else
+					{
+						int index = level.birds.indexOf((Bird) obj, true);
+						if (index != -1)
+						{
+							level.birds.removeIndex(index);
+							b2world.destroyBody(obj.body);
+						}
+					}
+				}
+				if (obj instanceof Frog)
+				{
+					if (obj.removeIn > 0)
+					{
+						obj.removeIn -= deltaTime;
+					} else
+					{
+						int index = level.frogs.indexOf((Frog) obj, true);
+						if (index != -1)
+						{
+							level.frogs.removeIndex(index);
+							b2world.destroyBody(obj.body);
+						}
+					}
+				}
+			}
+		}
+	}
+
+//		/**
+//		 * free memory of unused objects/assets
+//		 */
+//		@Override
+//		public void dispose ()
+//		{
+//			if (b2world != null)
+//			{
+//				b2world.dispose();
+////				b2world = null;
+//			}
+//
+//		}
 }

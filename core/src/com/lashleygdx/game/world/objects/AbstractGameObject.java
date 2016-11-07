@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.physics.box2d.Body;
 
 /**
  * Abstract game objects
@@ -22,6 +23,10 @@ public abstract class AbstractGameObject
 
 	public Vector2 acceleration;
 	public Rectangle bounds;
+
+	// box2d
+	public Body body;
+	public float removeIn = 0.0f;
 
 	/**
 	 * all objects should have these variables
@@ -46,11 +51,19 @@ public abstract class AbstractGameObject
 	 */
 	public void update (float deltaTime)
 	{
-		updateMotionX(deltaTime);
-		updateMotionY(deltaTime);
-		// move to new position
-		position.x += velocity.x * deltaTime;
-		position.y += velocity.y * deltaTime;
+		if (body == null)	// object not using box2d
+		{
+			updateMotionX(deltaTime);
+			updateMotionY(deltaTime);
+
+			// move to new position
+			position.x += velocity.x * deltaTime;
+			position.y += velocity.y * deltaTime;
+		} else	// object uses box2d
+		{
+			position.set(body.getPosition());
+			rotation = body.getAngle() * MathUtils.radiansToDegrees;
+		}
 	}
 
 	/**

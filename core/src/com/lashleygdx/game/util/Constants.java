@@ -21,8 +21,9 @@ public class Constants
 	// Location of description file for texture atlas
 	public static final String TEXTURE_ATLAS_OBJECTS = "images/murderkitty.pack.atlas";
 
-	// Location of image file for level 01
+	// Location of image file for levels
 	public static final String LEVEL_01 = "levels/level-01.png";
+	public static final String LEVEL_02 = "levels/level-02.png";
 
 	// Amount of extra lives at level start
 	public static final int LIVES_START = 3;
@@ -52,4 +53,16 @@ public class Constants
 
 	// preferences saved location
 	public static final String PREFERENCES = "game.prefs";
+
+	// spawn radius for carrots
+	public static final float BIRDS_SPAWN_RADIUS = 2;
+
+	// delay after game finished
+	public static final float TIME_DELAY_LEVEL_FINISHED = 5;
+
+	// delay removing objects until after particle effect
+	public static final float TIME_DELAY_REMOVAL = 2;
+
+	// number of levels
+	public static final float NUM_LEVELS = 2;
 }

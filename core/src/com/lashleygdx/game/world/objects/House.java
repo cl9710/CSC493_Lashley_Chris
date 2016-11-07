@@ -28,11 +28,14 @@ public class House extends AbstractGameObject
 	private void init()
 	{
 		dimension.set(3.0f, 3.0f);
+		origin.set(dimension.x /2, dimension.y / 2);
 
 		regHouse = Assets.instance.house.house;
 
 		// set bounding box for collision detection
 		bounds.set(0, 0, dimension.x, dimension.y);
+		//		bounds.set(1, Float.MIN_VALUE, 10, Float.MAX_VALUE);
+		origin.set(dimension.x / 2, 0.0f);
 
 		reached = false;
 	}

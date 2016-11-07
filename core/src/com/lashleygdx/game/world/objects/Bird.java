@@ -21,6 +21,7 @@ public class Bird extends AbstractGameObject
 
 	private TextureRegion regBirdUp;
 	private TextureRegion regBirdDown;
+	private TextureRegion regDeadBird;
 
 	public boolean collected;
 
@@ -31,6 +32,7 @@ public class Bird extends AbstractGameObject
 	private Vector2 floatTargetPosition;
 	private float flapTimeLeft;
 	private boolean flapUp;
+	public boolean dead;
 
 	/**
 	 * constructor
@@ -46,9 +48,11 @@ public class Bird extends AbstractGameObject
 	private void init()
 	{
 		dimension.set(0.5f, 0.5f);
+		origin.set(dimension.x /2, dimension.y / 2);
 
 		regBirdUp = Assets.instance.bird.birdUp;
 		regBirdDown = Assets.instance.bird.birdDown;
+		regDeadBird = Assets.instance.bird.deadBird;
 
 		// set bounding box for collision detection
 		bounds.set(0, 0, dimension.x, dimension.y);
@@ -64,6 +68,8 @@ public class Bird extends AbstractGameObject
 		int temp = (int)Math.round(Math.random());
 		flapUp = temp > 0;
 		flapTimeLeft = MathUtils.random(0, FLAP_SPEED);
+		dead = false;
+		removeIn = 0.5f;
 
 		// particles
 		bloodParticles.load(Gdx.files.internal("particles/blood.pfx"), Gdx.files.internal("particles"));
@@ -80,10 +86,16 @@ public class Bird extends AbstractGameObject
 		if (collected) return;
 
 		TextureRegion reg = null;
-		if (flapUp)
-			reg = regBirdUp;
-		else if (!flapUp)
-			reg = regBirdDown;
+		if (!dead)
+		{
+			if (flapUp)
+				reg = regBirdUp;
+			else if (!flapUp)
+				reg = regBirdDown;
+		} else
+		{
+			reg = regDeadBird;
+		}
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
 				reg.getRegionWidth(), reg.getRegionHeight(), false, false);
@@ -112,19 +124,31 @@ public class Bird extends AbstractGameObject
 		// blood spray
 		bloodParticles.update(deltaTime);
 
-		// bobbing
+//		// bobbing non box2d
+//		floatCycleTimeLeft -= deltaTime;
+//		if (floatTargetPosition == null)
+//		{
+//			floatTargetPosition = new Vector2(position);
+//		}
+//		if (floatCycleTimeLeft <= 0)
+//		{
+//			floatCycleTimeLeft = FLOAT_CYCLE_TIME;
+//			floatingDownwards = !floatingDownwards;
+//			floatTargetPosition.y += FLOAT_AMPLITUDE * (floatingDownwards ? -1 : 1);
+//		}
+//		position.lerp(floatTargetPosition, deltaTime);
+
+		// bobbing box2d
 		floatCycleTimeLeft -= deltaTime;
-		if (floatTargetPosition == null)
-		{
-			floatTargetPosition = new Vector2(position);
-		}
 		if (floatCycleTimeLeft <= 0)
 		{
 			floatCycleTimeLeft = FLOAT_CYCLE_TIME;
 			floatingDownwards = !floatingDownwards;
-			floatTargetPosition.y += FLOAT_AMPLITUDE * (floatingDownwards ? -1 : 1);
+			body.setLinearVelocity(0, FLOAT_AMPLITUDE * (floatingDownwards ? -1 : 1));
+		} else
+		{
+			body.setLinearVelocity(body.getLinearVelocity().scl(0.98f));
 		}
-		position.lerp(floatTargetPosition,  deltaTime);
 
 		// flapping
 		flapTimeLeft -= deltaTime;
@@ -133,5 +157,13 @@ public class Bird extends AbstractGameObject
 			flapTimeLeft = FLAP_SPEED;
 			flapUp = !flapUp;
 		}
+	}
+
+	/**
+	 * flag a bird as dead for rendering at end of level
+	 */
+	public void isDead()
+	{
+		dead = true;
 	}
 }

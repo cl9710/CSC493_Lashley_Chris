@@ -253,11 +253,13 @@ public class Assets implements Disposable, AssetErrorListener
 	{
 		public final AtlasRegion birdUp;
 		public final AtlasRegion birdDown;
+		public final AtlasRegion deadBird;
 
 		public AssetBird (TextureAtlas atlas)
 		{
 			birdUp = atlas.findRegion("birdUp");
 			birdDown = atlas.findRegion("birdDown");
+			deadBird = atlas.findRegion("deadBird");
 		}
 	}
 
