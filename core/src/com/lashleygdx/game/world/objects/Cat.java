@@ -9,6 +9,7 @@ import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.MathUtils;
 
@@ -37,8 +38,14 @@ public class Cat extends AbstractGameObject
 	public float timeLeftBloodlust;
 	public boolean dead;
 
-	public ParticleEffect dustParticles = new ParticleEffect();
+	private Animation isDead;
+	private Animation isFalling;
+	private Animation isIdle;
+	private Animation isJumping;
+	private Animation isRunning;
+	private Animation isWalking;
 
+	public ParticleEffect dustParticles = new ParticleEffect();
 
 	public enum VIEW_DIRECTION
 	{	LEFT,
@@ -67,9 +74,15 @@ public class Cat extends AbstractGameObject
 	public void init()
 	{
 		dimension.set(1, 1);
-		regCat = Assets.instance.cat.cat;
-		regBloodlust = Assets.instance.cat.bloodlust;
-		regDeadCat = Assets.instance.cat.deadCat;
+
+		isDead = Assets.instance.cat.isDead;
+		isFalling = Assets.instance.cat.isFalling;
+		isIdle = Assets.instance.cat.isIdle;
+		isJumping = Assets.instance.cat.isJumping;
+		isRunning = Assets.instance.cat.isRunning;
+		isWalking = Assets.instance.cat.isWalking;
+		setAnimation(isIdle);
+
 		dead = false;
 		// center image on game object
 		origin.set(dimension.x /2, dimension.y / 2);
@@ -159,7 +172,6 @@ public class Cat extends AbstractGameObject
 		terminalVelocity.set(6.0f, 4.0f);
 		if (pickedUp)
 			timeLeftBloodlust += Constants.BLOODLUST_POWERUP_DURATION;
-
 	}
 
 	/**
@@ -179,7 +191,25 @@ public class Cat extends AbstractGameObject
 	{
 		super.update(deltaTime);;
 		if (velocity.x != 0)
+		{
 			viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
+			if (jumpState != JUMP_STATE.JUMP_RISING)
+			{
+				if (!hasBloodlust)
+				{
+					if (animation != isWalking)
+						setAnimation(isWalking);
+				} else
+					if (animation != isRunning)
+						setAnimation(isRunning);
+			}
+		}
+		if (velocity.y > 0)
+			if (animation != isJumping)
+				setAnimation(isJumping);
+		if (velocity.x == 0 && velocity.y <= 0)
+			if (animation != isIdle)
+				setAnimation(isIdle);
 		if (timeLeftFrogPowerup > 0)
 		{
 			timeLeftFrogPowerup -= deltaTime;
@@ -202,6 +232,9 @@ public class Cat extends AbstractGameObject
 
 			}
 		}
+		if (dead == true)
+			if (animation != isDead)
+				setAnimation(isDead);
 		dustParticles.update(deltaTime);
 	}
 
@@ -226,7 +259,9 @@ public class Cat extends AbstractGameObject
 			timeJumping += deltaTime;
 			// jump time remaining?
 			if (timeJumping <= 2 * JUMP_TIME_MAX)	// still jumping
+			{
 				velocity.y = terminalVelocity.y;
+			}
 			break;
 		case FALLING:
 			break;
@@ -274,17 +309,13 @@ public class Cat extends AbstractGameObject
 				}
 			}
 			// draw image
+			reg = animation.getKeyFrame(stateTime, true);
 			if (hasBloodlust())	// use bloodlust image if has bloodlust
-			{
-				reg = regBloodlust;
-			} else	// use regular cat image
-			{
-				reg = regCat;
-			}
+				batch.setColor(1, 0, 0, 1);
 		}else	// dead
 		{
+			reg = animation.getKeyFrame(stateTime, true);
 			batch.setColor(1,  1,  1,  1);
-			reg = regDeadCat;
 		}
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
@@ -304,5 +335,15 @@ public class Cat extends AbstractGameObject
 		else
 			velocity.set(0, 0);
 		acceleration.set(0, 0);
+	}
+
+	/**
+	 * died
+	 */
+	public void died()
+	{
+		setAnimation(isDead);
+		dead = true;
+		freeze();
 	}
 }

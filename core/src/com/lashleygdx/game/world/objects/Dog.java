@@ -34,7 +34,8 @@ public class Dog extends AbstractGameObject
 		origin.set(dimension.x / 2, dimension.y / 2);
 
 		// bounding box for collision detection
-		bounds.set(origin.x, 0, dimension.x / 5, dimension.y * (4 / 5));
+//		bounds.set(origin.x, 0, dimension.x / 5, dimension.y * (4 / 5));
+		bounds.set(position.x + dimension.x / 3, 0, dimension.x / 4, dimension.y * 0.75f);
 	}
 
 	/**

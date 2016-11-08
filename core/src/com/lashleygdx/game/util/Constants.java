@@ -21,6 +21,14 @@ public class Constants
 	// Location of description file for texture atlas
 	public static final String TEXTURE_ATLAS_OBJECTS = "images/murderkitty.pack.atlas";
 
+	// Locations of animation texture atlas files
+	public static final String DEAD = "images/dead.pack.atlas";
+	public static final String FALL = "images/fall.pack.atlas";
+	public static final String IDLE = "images/idle.pack.atlas";
+	public static final String JUMP = "images/jump.pack.atlas";
+	public static final String RUN = "images/run.pack.atlas";
+	public static final String WALK = "images/walk.pack.atlas";
+
 	// Location of image file for levels
 	public static final String LEVEL_01 = "levels/level-01.png";
 	public static final String LEVEL_02 = "levels/level-02.png";
@@ -58,7 +66,7 @@ public class Constants
 	public static final float BIRDS_SPAWN_RADIUS = 2;
 
 	// delay after game finished
-	public static final float TIME_DELAY_LEVEL_FINISHED = 5;
+	public static final float TIME_DELAY_LEVEL_FINISHED = 8;
 
 	// delay removing objects until after particle effect
 	public static final float TIME_DELAY_REMOVAL = 2;

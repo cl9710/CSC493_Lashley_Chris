@@ -5,14 +5,17 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.lashleygdx.game.util.Constants;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.Animation;;
 
 /**
  * Assets manages game assets
@@ -221,11 +224,46 @@ public class Assets implements Disposable, AssetErrorListener
 		public final AtlasRegion bloodlust;
 		public final AtlasRegion deadCat;
 
+		// animations
+		public final Animation isDead;
+		public final Animation isFalling;
+		public final Animation isIdle;
+		public final Animation isJumping;
+		public final Animation isRunning;
+		public final Animation isWalking;
+
 		public AssetCat (TextureAtlas atlas)
 		{
 			cat = atlas.findRegion("cat");
 			bloodlust = atlas.findRegion("bloodlust");
 			deadCat = atlas.findRegion("deadCat");
+
+			Array<AtlasRegion> regions = null;
+			AtlasRegion region = null;
+
+			// dead
+			regions = atlas.findRegions("Dead");
+			isDead = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.NORMAL);
+
+			// fall
+			regions = atlas.findRegions("Fall");
+			isFalling = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.NORMAL);
+
+			// idle
+			regions = atlas.findRegions("Idle");
+			isIdle = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.LOOP);
+
+			// jump
+			regions = atlas.findRegions("Jump");
+			isJumping = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.NORMAL);
+
+			// run
+			regions = atlas.findRegions("Run");
+			isRunning = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.LOOP);
+
+			// walk
+			regions = atlas.findRegions("Walk");
+			isWalking = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.LOOP);
 		}
 	}
 
