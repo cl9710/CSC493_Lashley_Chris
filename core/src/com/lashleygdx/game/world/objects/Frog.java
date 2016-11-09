@@ -12,8 +12,10 @@ import com.lashleygdx.game.world.Assets;
 public class Frog extends AbstractGameObject
 {
 	private TextureRegion regFrog;
+	private TextureRegion regDeadFrog;
 
 	public boolean collected;
+	public boolean dead;
 
 	/**
 	 * constructor
@@ -31,11 +33,13 @@ public class Frog extends AbstractGameObject
 		dimension.set(0.5f, 0.5f);
 
 		regFrog = Assets.instance.frog.frog;
+		regDeadFrog = Assets.instance.frog.deadFrog;
 
 		// set bounding box for collision detection
 		bounds.set(0, 0, dimension.x, dimension.y);
 
 		collected = false;
+		dead = false;
 	}
 
 	/**
@@ -46,7 +50,14 @@ public class Frog extends AbstractGameObject
 		if (collected) return;
 
 		TextureRegion reg = null;
-		reg = regFrog;
+
+		if (!dead)
+		{
+			reg = regFrog;
+		} else
+		{
+			reg = regDeadFrog;
+		}
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
 				reg.getRegionWidth(), reg.getRegionHeight(), false, false);
@@ -59,5 +70,13 @@ public class Frog extends AbstractGameObject
 	public int getScore()
 	{
 		return 1;
+	}
+
+	/**
+	 * flag a frog as dead for rendering at end of level
+	 */
+	public void isDead()
+	{
+		dead = true;
 	}
 }

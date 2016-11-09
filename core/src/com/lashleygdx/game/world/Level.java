@@ -60,6 +60,7 @@ public class Level
 	public Array<Frog> frogs;
 	public House house;
 	public Array<Bird> deadBirds;
+	public Array<Frog> deadFrogs;
 
 	// decoration
 	public Trees trees;
@@ -91,6 +92,7 @@ public class Level
 		dogs = new Array<Dog>();
 		house = null;
 		deadBirds = new Array<Bird>();
+		deadFrogs = new Array<Frog>();
 
 		// load image file that represents the level data
 		Pixmap pixmap = new Pixmap (Gdx.files.internal(filename));
@@ -234,6 +236,10 @@ public class Level
 		for (Bird deadBird : deadBirds)
 			deadBird.render(batch);
 
+		// draw dead frogs
+		for (Frog deadFrog : deadFrogs)
+			deadFrog.render(batch);
+
 		// draw player character (cat)
 		cat.render(batch);
 
@@ -256,10 +262,14 @@ public class Level
 			rock.update(deltaTime);
 		for (Bird bird : birds)
 			bird.update(deltaTime);
-		for (Frog frog : frogs)
-			frog.update(deltaTime);
 		for (Bird deadBird : deadBirds)
 			deadBird.update(deltaTime);
+		for (Frog frog : frogs)
+			frog.update(deltaTime);
+		for (Frog deadFrog : deadFrogs)
+			deadFrog.update(deltaTime);
+		for (Dog dog : dogs)
+			dog.update(deltaTime);
 		eyes.update(deltaTime);
 	}
 }

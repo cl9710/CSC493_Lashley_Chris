@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
 import com.lashleygdx.game.util.CollisionHandler;
@@ -21,7 +20,6 @@ import com.lashleygdx.game.world.objects.Dog;
 import com.badlogic.gdx.Game;
 import com.lashleygdx.game.screens.MenuScreen;
 import com.lashleygdx.game.util.AudioManager;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -53,9 +51,11 @@ public class WorldController extends InputAdapter implements Disposable
 	private Rectangle r1 = new Rectangle();
 	private Rectangle r2 = new Rectangle();
 
-	private float timeLeftGameOverDelay;
+	// track timers
+	private float timeLeftEndLevelDelay;
 	private float timeLeftDead;
 
+	// box2d physics
 	public World b2world;
 	public Array<AbstractGameObject> objectsToRemove;
 
@@ -66,6 +66,8 @@ public class WorldController extends InputAdapter implements Disposable
 	{
 		birdScore = 0;
 		frogScore = 0;
+		timeLeftEndLevelDelay = 0;
+		timeLeftDead = 0;
 		level = new Level(getNextLevel(levelNum));
 		AudioManager.instance.play(Assets.instance.music.normalSong);
 		player = level.cat;
@@ -92,8 +94,6 @@ public class WorldController extends InputAdapter implements Disposable
 		cameraHelper = new CameraHelper();
 		lives = Constants.LIVES_START;
 		livesVisual = lives;
-		timeLeftGameOverDelay = 0;
-		timeLeftDead = 0;
 		levelNum = 0;
 		initLevel();
 	}
@@ -122,71 +122,58 @@ public class WorldController extends InputAdapter implements Disposable
 	 */
 	public void update (float deltaTime)
 	{
+		// remove collected box2d objects
 		if (objectsToRemove.size > 0)
 			removeObjects(deltaTime);
-		if (!isDead() || isGameOver())
+		handleDebugInput(deltaTime);
+		// if home reached
+		if (isVictory())
 		{
-			handleDebugInput(deltaTime);
-			if (isVictory())
+			timeLeftEndLevelDelay += deltaTime;
+			if (timeLeftEndLevelDelay >= Constants.TIME_DELAY_VICTORY)
 			{
-				timeLeftGameOverDelay -= deltaTime;
-				if (timeLeftGameOverDelay < 0)
-				{
-					AudioManager.instance.stopMusic();
-					if (levelNum < Constants.NUM_LEVELS)
-						initLevel();
-					else
-					{
-						backToMenu();
-					}
-				}
-			}
-			else if (isGameOver())
-			{
-				timeLeftGameOverDelay -= deltaTime;
-				if (timeLeftGameOverDelay < 0)
-					backToMenu();
-			} else
-			{
-				handleInputGame(deltaTime);
-			}
-			level.update(deltaTime);
-			testCollisions();
-			b2world.step(deltaTime,  8,  3);
-			cameraHelper.update(deltaTime);
-			if (isPlayerInWater() && !isGameOver())
-			{
-				if (!isDead())
-				{
-					AudioManager.instance.stopMusic();
-					AudioManager.instance.play(Assets.instance.sounds.splash);
-					playerDied();
-					Gdx.app.log(TAG,  "Stay out of water");
-				}
+				AudioManager.instance.stopMusic();
+				if (levelNum < Constants.NUM_LEVELS)
+					initLevel();
 				else
-					return;
-			}
-		} else
-		{
-			if (isGameOver())
-			{
-				timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
-			} else
-			{
-				timeLeftDead -= deltaTime;
-				if (timeLeftDead < 0)
 				{
-					lives--;
-					if (isGameOver())
-					{
-						timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
-					} else
-					{
-						initLevel();
-					}
+					backToMenu();
 				}
 			}
 		}
+		// if dead and no lives remaining
+		else if (isGameOver())
+		{
+			timeLeftEndLevelDelay += deltaTime;
+			if (timeLeftEndLevelDelay >= Constants.TIME_DELAY_GAME_OVER)
+				backToMenu();
+		}
+		// if drowned
+		else if (isPlayerInWater() && !isDead())
+		{
+			AudioManager.instance.stopMusic();
+			AudioManager.instance.play(Assets.instance.sounds.splash);
+			playerDied();
+			Gdx.app.log(TAG,  "Stay out of water");
+		}
+		// if dead
+		else if (player.dead)
+		{
+			timeLeftDead += deltaTime;
+			if (timeLeftDead >= Constants.TIME_DELAY_DEAD)
+			{
+				lives--;
+				if (!isGameOver())
+					initLevel();
+			}
+		} else
+		{
+			handleInputGame(deltaTime);
+		}
+		level.update(deltaTime);
+		testCollisions();
+		b2world.step(deltaTime,  8,  3);
+		cameraHelper.update(deltaTime);
 		level.trees.updateScrollPosition(cameraHelper.getPosition());
 		if (livesVisual > lives)
 		{
@@ -358,7 +345,6 @@ public class WorldController extends InputAdapter implements Disposable
 			AudioManager.instance.stopMusic();
 			AudioManager.instance.play(Assets.instance.sounds.victory);
 			house.reached = true;
-			timeLeftGameOverDelay = Constants.TIME_DELAY_LEVEL_FINISHED;
 
 			if (player.jumpState != JUMP_STATE.GROUNDED)
 				player.jumpState = JUMP_STATE.JUMP_FALLING;
@@ -367,7 +353,7 @@ public class WorldController extends InputAdapter implements Disposable
 
 			Vector2 playerCenter = new Vector2(player.position);
 			playerCenter.x += player.bounds.width;
-			spawnDeadBirds(playerCenter, birdScore, Constants.BIRDS_SPAWN_RADIUS);
+			spawnDeadCritters(playerCenter, birdScore, frogScore, Constants.BIRDS_SPAWN_RADIUS);
 		}
 	}
 
@@ -512,12 +498,13 @@ public class WorldController extends InputAdapter implements Disposable
 	}
 
 	/**
-	 * make it the player drop all collected birds when the goal is reached
+	 * make the player drop all collected birds and frogs when the goal is reached
 	 * @param pos
 	 * @param numBirds
+	 * @param numFrogs
 	 * @param radius
 	 */
-	private void spawnDeadBirds (Vector2 pos, int numBirds, float radius)
+	private void spawnDeadCritters (Vector2 pos, int numBirds, int numFrogs, float radius)
 	{
 		float birdShapeScale = 0.5f;
 
@@ -534,7 +521,6 @@ public class WorldController extends InputAdapter implements Disposable
 			BodyDef bodyDef = new BodyDef();
 			// spawn them from the player
 			bodyDef.position.set(pos);
-			//			bodyDef.position.add(x, y);
 			bodyDef.angle = rotation;
 			Body body = b2world.createBody(bodyDef);
 			body.setType(BodyType.DynamicBody);
@@ -555,37 +541,39 @@ public class WorldController extends InputAdapter implements Disposable
 			// finally, add new deadBird to list for updating/rendering
 			level.deadBirds.add(deadBird);
 		}
+		for (int i = 0; i < numFrogs; i++)
+		{
+			Frog deadFrog = new Frog();
+			deadFrog.isDead();
+			// calculate random spawn rotation, and scale
+			float rotation = MathUtils.random(0.0f, 360.0f) * MathUtils.degreesToRadians;
+			float frogScale = MathUtils.random(0.5f, 1.0f);
+			deadFrog.scale.set(frogScale, frogScale);
+			// create box2d body for deadBirds with start position and angle of rotation
+			BodyDef bodyDef = new BodyDef();
+			// spawn them from the player
+			bodyDef.position.set(pos);
+			bodyDef.angle = rotation;
+			Body body = b2world.createBody(bodyDef);
+			body.setType(BodyType.DynamicBody);
+			deadFrog.body = body;
+			// create rectangular shape for deadBirds to allow interactions (collisions) with other objects
+			PolygonShape polygonShape = new PolygonShape();
+			float halfWidth = deadFrog.bounds.width / 2.0f * frogScale;
+			float halfHeight = deadFrog.bounds.height / 2.0f * frogScale;
+			polygonShape.setAsBox(halfWidth * birdShapeScale, halfHeight * birdShapeScale);
+			// set physical attributes
+			FixtureDef fixtureDef = new FixtureDef();
+			fixtureDef.shape = polygonShape;
+			fixtureDef.density = 50;
+			fixtureDef.restitution = 0.5f;
+			fixtureDef.friction = 0.5f;
+			body.createFixture(fixtureDef);
+			polygonShape.dispose();
+			// finally, add new deadFrog to list for updating/rendering
+			level.deadFrogs.add(deadFrog);
+		}
 	}
-
-//	/**
-//	 * make it the player drop all collected birds when the goal is reached
-//	 * @param pos
-//	 * @param numBirds
-//	 * @param radius
-//	 */
-//	private void spawnDeadBirds (Vector2 pos, int numBirds, float radius)
-//	{
-//		float birdShapeScale = 0.5f;
-//
-//		// create birds with box2d body and fixture
-//		for (int i = 0; i < numBirds; i++)
-//		{
-//			Bird deadBird = new Bird();
-//			deadBird.isDead();
-//			deadBird.position.set(pos);
-//			float x = MathUtils.random(-radius, radius);
-//			float y = MathUtils.random(5.0f, 15.0f);
-//			deadBird.position.add(x, y);
-//			// calculate random spawn rotation, and scale
-//			float rotation = MathUtils.random(0.0f, 360.0f) * MathUtils.degreesToRadians;
-//			float birdScale = MathUtils.random(0.5f, 1.0f);
-//			deadBird.scale.set(birdScale, birdScale);
-//			// create box2d body for deadBirds with start position and angle of rotation
-//			createBody(deadBird, BodyType.DynamicBody, rotation);
-//			// finally, add new deadBird to list for updating/rendering
-//			level.deadBirds.add(deadBird);
-//		}
-//	}
 
 	/**
 	 * create a box2d body (for most objects)
@@ -605,9 +593,6 @@ public class WorldController extends InputAdapter implements Disposable
 		polygonShape.setAsBox(obj.bounds.width / 2.0f, obj.bounds.height / 2.0f, origin, rotation);
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = polygonShape;
-//		fixtureDef.density = 50;
-//		fixtureDef.restitution = 0.5f;
-//		fixtureDef.friction = 0.5f;
 		body.createFixture(fixtureDef);
 		polygonShape.dispose();
 		return body;
@@ -725,6 +710,5 @@ public class WorldController extends InputAdapter implements Disposable
 	public void playerDied()
 	{
 		player.died();
-		timeLeftDead = Constants.TIME_DELAY_DEAD;
 	}
 }

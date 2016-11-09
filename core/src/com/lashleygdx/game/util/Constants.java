@@ -43,10 +43,10 @@ public class Constants
 	public static final float BLOODLUST_POWERUP_DURATION = 1.5f;
 
 	// Delay after game over
-	public static final float TIME_DELAY_GAME_OVER = 3;
+	public static final float TIME_DELAY_GAME_OVER = 4;
 
 	// Delay after death
-	public static final float TIME_DELAY_DEAD = 3;
+	public static final float TIME_DELAY_DEAD = 2;
 
 	// Temporary damage immunity after hitting something
 	public static final float DMG_IMMUNITY = 3;
@@ -66,7 +66,7 @@ public class Constants
 	public static final float BIRDS_SPAWN_RADIUS = 2;
 
 	// delay after game finished
-	public static final float TIME_DELAY_LEVEL_FINISHED = 8;
+	public static final float TIME_DELAY_VICTORY = 4;
 
 	// delay removing objects until after particle effect
 	public static final float TIME_DELAY_REMOVAL = 2;

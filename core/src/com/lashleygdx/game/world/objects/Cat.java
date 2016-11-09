@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
-import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
+//import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
 import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
@@ -26,9 +26,6 @@ public class Cat extends AbstractGameObject
 	private final float JUMP_TIME_MIN = 0.1f;
 	private final float JUMP_TIME_OFFSET_FLYING = JUMP_TIME_MAX - 0.018f;
 
-	private TextureRegion regCat;
-	private TextureRegion regBloodlust;
-	private TextureRegion regDeadCat;
 	public VIEW_DIRECTION viewDirection;
 	public float timeJumping;
 	public JUMP_STATE jumpState;
@@ -38,8 +35,9 @@ public class Cat extends AbstractGameObject
 	public float timeLeftBloodlust;
 	public boolean dead;
 
+	// animations
 	private Animation isDead;
-	private Animation isFalling;
+//	private Animation isFalling;
 	private Animation isIdle;
 	private Animation isJumping;
 	private Animation isRunning;
@@ -76,7 +74,7 @@ public class Cat extends AbstractGameObject
 		dimension.set(1, 1);
 
 		isDead = Assets.instance.cat.isDead;
-		isFalling = Assets.instance.cat.isFalling;
+//		isFalling = Assets.instance.cat.isFalling;
 		isIdle = Assets.instance.cat.isIdle;
 		isJumping = Assets.instance.cat.isJumping;
 		isRunning = Assets.instance.cat.isRunning;
@@ -190,51 +188,56 @@ public class Cat extends AbstractGameObject
 	public void update (float deltaTime)
 	{
 		super.update(deltaTime);;
-		if (velocity.x != 0)
+		if (!dead)
 		{
-			viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
-			if (jumpState != JUMP_STATE.JUMP_RISING)
+			if (velocity.x != 0)
 			{
-				if (!hasBloodlust)
+				viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
+				if (jumpState != JUMP_STATE.JUMP_RISING)
 				{
-					if (animation != isWalking)
-						setAnimation(isWalking);
-				} else
-					if (animation != isRunning)
-						setAnimation(isRunning);
+					if (!hasBloodlust)
+					{
+						if (animation != isWalking)
+							setAnimation(isWalking);
+					} else
+						if (animation != isRunning)
+							setAnimation(isRunning);
+				}
 			}
-		}
-		if (velocity.y > 0)
-			if (animation != isJumping)
-				setAnimation(isJumping);
-		if (velocity.x == 0 && velocity.y <= 0)
-			if (animation != isIdle)
-				setAnimation(isIdle);
-		if (timeLeftFrogPowerup > 0)
-		{
-			timeLeftFrogPowerup -= deltaTime;
-			if (timeLeftFrogPowerup < 0)
+			if (velocity.y > 0)
+				if (animation != isJumping)
+					setAnimation(isJumping);
+			if (velocity.x == 0 && velocity.y <= 0)
+				if (animation != isIdle)
+					setAnimation(isIdle);
+			if (timeLeftFrogPowerup > 0)
 			{
-				// disable powerup
-				timeLeftFrogPowerup = 0;
-				setFrogPowerup(false);
+				timeLeftFrogPowerup -= deltaTime;
+				if (timeLeftFrogPowerup < 0)
+				{
+					// disable powerup
+					timeLeftFrogPowerup = 0;
+					setFrogPowerup(false);
+				}
 			}
-		}
-		if (timeLeftBloodlust > 0)
-		{
-			timeLeftBloodlust -= deltaTime;
-			if (timeLeftBloodlust < 0)
+			if (timeLeftBloodlust > 0)
 			{
-				timeLeftBloodlust = 0;
-				hasBloodlust = false;
-				AudioManager.instance.play(Assets.instance.music.normalSong);
-				terminalVelocity.set(3.0f, 4.0f);
+				timeLeftBloodlust -= deltaTime;
+				if (timeLeftBloodlust < 0)
+				{
+					timeLeftBloodlust = 0;
+					hasBloodlust = false;
+					AudioManager.instance.play(Assets.instance.music.normalSong);
+					terminalVelocity.set(3.0f, 4.0f);
 
+				}
 			}
-		}
-		if (dead == true)
+		} else
+		{
+			//		if (dead)
 			if (animation != isDead)
 				setAnimation(isDead);
+		}
 		dustParticles.update(deltaTime);
 	}
 
@@ -288,13 +291,13 @@ public class Cat extends AbstractGameObject
 	{
 		TextureRegion reg = null;
 
+		// apply selected skin color
+		batch.setColor(CharacterSkin.values()[GamePreferences.instance.charSkin].getColor());
+
 		if (!dead)
 		{
 			// draw particles
 			dustParticles.draw(batch);
-
-			// apply selected skin color
-			batch.setColor(CharacterSkin.values()[GamePreferences.instance.charSkin].getColor());
 
 			// set special color when has frog powerup (overrides bloodlust color)
 			if (hasFrogPowerup)
@@ -308,15 +311,14 @@ public class Cat extends AbstractGameObject
 					}
 				}
 			}
-			// draw image
-			reg = animation.getKeyFrame(stateTime, true);
 			if (hasBloodlust())	// use bloodlust image if has bloodlust
 				batch.setColor(1, 0, 0, 1);
 		}else	// dead
 		{
-			reg = animation.getKeyFrame(stateTime, true);
 			batch.setColor(1,  1,  1,  1);
 		}
+		// draw image
+		reg = animation.getKeyFrame(stateTime, false);
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
 				reg.getRegionWidth(), reg.getRegionHeight(), viewDirection == VIEW_DIRECTION.LEFT, false);
@@ -342,6 +344,8 @@ public class Cat extends AbstractGameObject
 	 */
 	public void died()
 	{
+		if (jumpState != JUMP_STATE.GROUNDED)
+			jumpState = JUMP_STATE.JUMP_FALLING;
 		setAnimation(isDead);
 		dead = true;
 		freeze();

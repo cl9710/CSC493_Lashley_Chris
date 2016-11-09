@@ -20,6 +20,7 @@ public class WorldRenderer implements Disposable
 	private WorldController worldController;
 	private OrthographicCamera cameraGUI;
 
+	// draw box2d outlines
 	private static final boolean DEBUG_DRAW_BOX2D_WORLD = false;
 	private Box2DDebugRenderer b2debugRenderer;
 
@@ -216,7 +217,7 @@ public class WorldRenderer implements Disposable
 	private void renderGuiGameOverMessage (SpriteBatch batch)
 	{
 		float x = cameraGUI.viewportWidth * 6 / 15;
-		float y = cameraGUI.viewportHeight / 2;
+		float y = cameraGUI.viewportHeight / 10;
 		if (worldController.isGameOver())
 		{
 			BitmapFont fontGameOver = Assets.instance.fonts.defaultBig;
@@ -281,8 +282,8 @@ public class WorldRenderer implements Disposable
 	 */
 	private void renderGuiVictory (SpriteBatch batch)
 	{
-		float x = cameraGUI.viewportWidth * 6 / 15;
-		float y = cameraGUI.viewportHeight / 2;
+		float x = cameraGUI.viewportWidth * 6 / 14;
+		float y = cameraGUI.viewportHeight / 10;
 		if (worldController.isVictory())
 		{
 			BitmapFont fontGameOver = Assets.instance.fonts.defaultBig;
@@ -299,8 +300,8 @@ public class WorldRenderer implements Disposable
 	 */
 	private void renderGuiDeath (SpriteBatch batch)
 	{
-		float x = cameraGUI.viewportWidth * 6 / 15;
-		float y = cameraGUI.viewportHeight / 2;
+		float x = cameraGUI.viewportWidth * 6 / 14;
+		float y = cameraGUI.viewportHeight / 10;
 		if (worldController.isDead() && !worldController.isGameOver())
 		{
 			BitmapFont fontGameOver = Assets.instance.fonts.defaultBig;

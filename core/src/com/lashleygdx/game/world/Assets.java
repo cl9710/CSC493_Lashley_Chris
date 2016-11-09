@@ -221,8 +221,6 @@ public class Assets implements Disposable, AssetErrorListener
 	public class AssetCat
 	{
 		public final AtlasRegion cat;
-		public final AtlasRegion bloodlust;
-		public final AtlasRegion deadCat;
 
 		// animations
 		public final Animation isDead;
@@ -234,12 +232,9 @@ public class Assets implements Disposable, AssetErrorListener
 
 		public AssetCat (TextureAtlas atlas)
 		{
-			cat = atlas.findRegion("cat");
-			bloodlust = atlas.findRegion("bloodlust");
-			deadCat = atlas.findRegion("deadCat");
-
+			cat = atlas.findRegion("lives");
 			Array<AtlasRegion> regions = null;
-			AtlasRegion region = null;
+//			AtlasRegion region = null;
 
 			// dead
 			regions = atlas.findRegions("Dead");
@@ -259,7 +254,7 @@ public class Assets implements Disposable, AssetErrorListener
 
 			// run
 			regions = atlas.findRegions("Run");
-			isRunning = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.LOOP);
+			isRunning = new Animation(1.0f / 8.0f, regions, Animation.PlayMode.LOOP);
 
 			// walk
 			regions = atlas.findRegions("Walk");
@@ -308,10 +303,12 @@ public class Assets implements Disposable, AssetErrorListener
 	public class AssetFrog
 	{
 		public final AtlasRegion frog;
+		public final AtlasRegion deadFrog;
 
 		public AssetFrog (TextureAtlas atlas)
 		{
 			frog = atlas.findRegion("frog");
+			deadFrog = atlas.findRegion("deadFrog");
 		}
 	}
 
@@ -335,11 +332,16 @@ public class Assets implements Disposable, AssetErrorListener
 	 */
 	public class AssetDog
 	{
-		public final AtlasRegion dog;
+		Array<AtlasRegion> regions = null;
+		AtlasRegion region = null;
+
+		public final Animation dog;
 
 		public AssetDog (TextureAtlas atlas)
 		{
-			dog = atlas.findRegion("dog");
+			// idle
+			regions = atlas.findRegions("Dog");
+			dog = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.LOOP);
 		}
 	}
 
