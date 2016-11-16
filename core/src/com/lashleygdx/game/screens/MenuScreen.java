@@ -26,6 +26,10 @@ import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
+import com.badlogic.gdx.math.Interpolation;
+import static com.badlogic.gdx.scenes.scene2d.actions.Actions.*;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 
 /**
  * MenuScreen controls the game start menu screen
@@ -190,11 +194,28 @@ public class MenuScreen extends AbstractGameScreen
 		// + coins
 		imgCoins = new Image(skinCanyonBunny, "coins");
 		layer.addActor(imgCoins);
-		imgCoins.setPosition(135, 80);
+		imgCoins.setOrigin(imgCoins.getWidth() / 2, imgCoins.getHeight() / 2);
+		imgCoins.addAction(sequence(
+				moveTo(135, -20),
+				scaleTo(0, 0),
+				fadeOut(0),
+				delay(2.5f),
+				parallel(moveBy(0, 100, 0.5f, Interpolation.swingOut),
+						scaleTo(1.0f, 1.0f, 0.25f, Interpolation.linear),
+						alpha(1.0f, 0.5f))
+				));
+//		imgCoins.setPosition(135, 80);
 		// + bunny
 		imgBunny = new Image(skinCanyonBunny, "bunny");
 		layer.addActor(imgBunny);
-		imgBunny.setPosition(355, 40);
+		imgBunny.addAction(sequence(
+				moveTo(655, 510),
+				delay(4.0f),
+				moveBy(-70, -100, 0.5f, Interpolation.fade),
+				moveBy(-100, -50, 0.5f, Interpolation.fade),
+				moveBy(-150, -300, 1.f, Interpolation.elasticIn)
+				));
+//		imgBunny.setPosition(355, 40);
 		return layer;
 	}
 
@@ -271,7 +292,8 @@ public class MenuScreen extends AbstractGameScreen
 		// make options window slightly transparent
 		winOptions.setColor(1, 1, 1, 0.8f);
 		// hide options window by default
-		winOptions.setVisible(false);
+		showOptionsWindow(false, false);
+//		winOptions.setVisible(false);
 		if (debugEnabled) winOptions.debug();
 		// let tablelayout recalculate widget sizes and positions
 		winOptions.pack();
@@ -294,9 +316,11 @@ public class MenuScreen extends AbstractGameScreen
 	private void onOptionsClicked()
 	{
 		loadSettings();
-		btnMenuPlay.setVisible(false);
-		btnMenuOptions.setVisible(false);
-		winOptions.setVisible(true);
+		showMenuButtons(false);
+		showOptionsWindow(true, true);
+//		btnMenuPlay.setVisible(false);
+//		btnMenuOptions.setVisible(false);
+//		winOptions.setVisible(true);
 	}
 
 	/**
@@ -357,9 +381,11 @@ public class MenuScreen extends AbstractGameScreen
 	 */
 	private void onCancelClicked()
 	{
-		btnMenuPlay.setVisible(true);
-		btnMenuOptions.setVisible(true);
-		winOptions.setVisible(false);
+//		btnMenuPlay.setVisible(true);
+//		btnMenuOptions.setVisible(true);
+//		winOptions.setVisible(false);
+		showMenuButtons(true);
+		showOptionsWindow(false, true);
 		AudioManager.instance.onSettingsUpdated();
 	}
 
@@ -493,5 +519,38 @@ public class MenuScreen extends AbstractGameScreen
 			}
 		});
 		return tbl;
+	}
+
+	private void showMenuButtons (boolean visible)
+	{
+		float moveDuration = 1.0f;
+		Interpolation moveEasing = Interpolation.swing;
+		float delayOptionsButton = 0.25f;
+
+		float moveX = 300 * (visible ? -1 : 1);
+		float moveY = 0 * (visible ? -1 : 1);
+		final Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+		btnMenuPlay.addAction(moveBy(moveX, moveY, moveDuration, moveEasing));
+
+		btnMenuOptions.addAction(sequence(delay(delayOptionsButton), moveBy(moveX, moveY, moveDuration, moveEasing)));
+
+		SequenceAction seq = sequence();
+		if (visible)
+			seq.addAction(delay(delayOptionsButton + moveDuration));
+		seq.addAction(run(new Runnable() {
+			public void run () {
+				btnMenuPlay.setTouchable(touchEnabled);
+				btnMenuOptions.setTouchable(touchEnabled);
+			}
+		}));
+		stage.addAction(seq);
+	}
+
+	private void showOptionsWindow (boolean visible, boolean animated)
+	{
+		float alphaTo = visible ? 0.8f : 0.0f;
+		float duration = animated ? 1.0f : 0.0f;
+		Touchable touchEnabled = visible ? Touchable.enabled : Touchable.disabled;
+		winOptions.addAction(sequence(touchable(touchEnabled), alpha(alphaTo, duration)));
 	}
 }

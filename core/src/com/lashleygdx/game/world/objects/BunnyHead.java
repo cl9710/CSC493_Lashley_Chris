@@ -10,6 +10,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.math.MathUtils;
 import com.lashleygdx.game.util.AudioManager;
+import com.badlogic.gdx.graphics.g2d.Animation;
 
 /**
  * player character
@@ -23,7 +24,12 @@ public class BunnyHead extends AbstractGameObject
 	private final float JUMP_TIME_MIN = 0.1f;
 	private final float JUMP_TIME_OFFSET_FLYING = JUMP_TIME_MAX - 0.018f;
 
-	private TextureRegion regHead;
+//	private TextureRegion regHead;
+	private Animation animNormal;
+	private Animation animCopterTransform;
+	private Animation animCopterTransformBack;
+	private Animation animCopterRotate;
+
 	public VIEW_DIRECTION viewDirection;
 	public float timeJumping;
 	public JUMP_STATE jumpState;
@@ -59,7 +65,13 @@ public class BunnyHead extends AbstractGameObject
 	public void init()
 	{
 		dimension.set(1, 1);
-		regHead = Assets.instance.bunny.head;
+		animNormal = Assets.instance.bunny.animNormal;
+		animCopterTransform = Assets.instance.bunny.animCopterTransform;
+		animCopterTransformBack = Assets.instance.bunny.animCopterTransformBack;
+		animCopterRotate = Assets.instance.bunny.animCopterRotate;
+		setAnimation(animNormal);
+
+		//		regHead = Assets.instance.bunny.head;
 		// center image on game object
 		origin.set(dimension.x /2, dimension.y / 2);
 		// bounding box for collision detection
@@ -146,16 +158,45 @@ public class BunnyHead extends AbstractGameObject
 			viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
 		}
 		if (timeLeftFeatherPowerup > 0)
-		{	// 																					is this needed?
+		{
+			if (animation == animCopterTransformBack)
+			{
+				setAnimation(animCopterTransform);
+			}
 			timeLeftFeatherPowerup -= deltaTime;
 			if (timeLeftFeatherPowerup < 0)
 			{
 				// disable powerup
 				timeLeftFeatherPowerup = 0;
 				setFeatherPowerup(false);
+				setAnimation(animCopterTransformBack);
 			}
 		}
 		dustParticles.update(deltaTime);
+
+		if (hasFeatherPowerup)
+		{
+			if (animation == animNormal)
+			{
+				setAnimation(animCopterTransform);
+			}
+			else if (animation == animCopterTransform)
+			{
+				if (animation.isAnimationFinished(stateTime))
+					setAnimation(animCopterRotate);
+			}
+		} else
+		{
+			if (animation == animCopterRotate)
+			{
+				if (animation.isAnimationFinished(stateTime))
+					setAnimation(animCopterTransformBack);
+			}
+			else if (animation == animCopterTransformBack)
+				if (animation.isAnimationFinished(stateTime))
+					setAnimation(animNormal);
+		}
+
 	}
 
 	/**
@@ -215,7 +256,7 @@ public class BunnyHead extends AbstractGameObject
 		if (hasFeatherPowerup)
 			batch.setColor(1.0f, 0.8f, 0.0f, 1.0f);
 		// draw image
-		reg = regHead;
+		reg = animation.getKeyFrame(stateTime, true);;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
 				reg.getRegionWidth(), reg.getRegionHeight(), viewDirection == VIEW_DIRECTION.LEFT, false);

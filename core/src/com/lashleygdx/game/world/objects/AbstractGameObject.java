@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.graphics.g2d.Animation;
 
 /**
  * Abstract game objects
@@ -26,6 +27,9 @@ public abstract class AbstractGameObject
 
 	// box2d
 	public Body body;
+
+	public float stateTime;
+	public Animation animation;
 
 	/**
 	 * all objects should have these variables
@@ -50,6 +54,7 @@ public abstract class AbstractGameObject
 	 */
 	public void update (float deltaTime)
 	{
+		stateTime += deltaTime;
 		if (body == null)	// object not using box2d
 		{
 			updateMotionX(deltaTime);
@@ -109,5 +114,11 @@ public abstract class AbstractGameObject
 		velocity.y += acceleration.y * deltaTime;
 		// make sure object velocity does not exceed terminal velocity
 		velocity.y = MathUtils.clamp(velocity.y, -terminalVelocity.y, terminalVelocity.y);
+	}
+
+	public void setAnimation (Animation animation)
+	{
+		this.animation = animation;
+		stateTime = 0;
 	}
 }

@@ -2,6 +2,7 @@ package com.lashleygdx.game.world.objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.lashleygdx.game.world.Assets;
 
 /**
@@ -10,7 +11,7 @@ import com.lashleygdx.game.world.Assets;
  */
 public class GoldCoin extends AbstractGameObject
 {
-	private TextureRegion regGoldCoin;
+//	private TextureRegion regGoldCoin;
 
 	public boolean collected;
 
@@ -29,7 +30,9 @@ public class GoldCoin extends AbstractGameObject
 	{
 		dimension.set(0.5f, 0.5f);
 
-		regGoldCoin = Assets.instance.goldCoin.goldCoin;
+//		regGoldCoin = Assets.instance.goldCoin.goldCoin;
+		setAnimation(Assets.instance.goldCoin.animGoldCoin);
+		stateTime = MathUtils.random(0.0f, 1.0f);
 
 		// set bounding box for collision detection
 		bounds.set(0, 0, dimension.x, dimension.y);
@@ -45,7 +48,7 @@ public class GoldCoin extends AbstractGameObject
 		if (collected) return;
 
 		TextureRegion reg = null;
-		reg = regGoldCoin;
+		reg = animation.getKeyFrame(stateTime, true);
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x, origin.y, dimension.x,
 				dimension.y, scale.x, scale.y, rotation, reg.getRegionX(), reg.getRegionY(),
 				reg.getRegionWidth(), reg.getRegionHeight(), false, false);
