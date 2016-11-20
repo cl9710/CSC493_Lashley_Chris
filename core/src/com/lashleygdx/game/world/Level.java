@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.lashleygdx.game.world.objects.AbstractGameObject;
 import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Cat;
+import com.lashleygdx.game.world.objects.DeathExplosion;
 import com.lashleygdx.game.world.objects.Dog;
 import com.lashleygdx.game.world.objects.Frog;
 import com.lashleygdx.game.world.objects.Ground;
@@ -61,6 +62,7 @@ public class Level
 	public House house;
 	public Array<Bird> deadBirds;
 	public Array<Frog> deadFrogs;
+	public Array<DeathExplosion> deathExplosions;
 
 	// decoration
 	public Trees trees;
@@ -93,6 +95,7 @@ public class Level
 		house = null;
 		deadBirds = new Array<Bird>();
 		deadFrogs = new Array<Frog>();
+		deathExplosions = new Array<DeathExplosion>();
 
 		// load image file that represents the level data
 		Pixmap pixmap = new Pixmap (Gdx.files.internal(filename));
@@ -240,6 +243,10 @@ public class Level
 		for (Frog deadFrog : deadFrogs)
 			deadFrog.render(batch);
 
+		// draw death explosions
+		for (DeathExplosion deathExplosion : deathExplosions)
+			deathExplosion.render(batch);
+
 		// draw player character (cat)
 		cat.render(batch);
 
@@ -268,6 +275,8 @@ public class Level
 			frog.update(deltaTime);
 		for (Frog deadFrog : deadFrogs)
 			deadFrog.update(deltaTime);
+		for (DeathExplosion deathExplosion : deathExplosions)
+			deathExplosion.update(deltaTime);
 		for (Dog dog : dogs)
 			dog.update(deltaTime);
 		eyes.update(deltaTime);

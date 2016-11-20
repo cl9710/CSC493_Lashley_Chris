@@ -16,6 +16,7 @@ import com.lashleygdx.game.world.objects.AbstractGameObject;
 import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
+import com.lashleygdx.game.world.objects.DeathExplosion;
 import com.lashleygdx.game.world.objects.Dog;
 import com.badlogic.gdx.Game;
 import com.lashleygdx.game.screens.MenuScreen;
@@ -308,6 +309,9 @@ public class WorldController extends InputAdapter implements Disposable
 			//			AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
 			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
 			birdScore += bird.getScore();
+			DeathExplosion blood = new DeathExplosion(bird.position);
+			level.deathExplosions.add(blood);
+			blood.splat();
 			if (!player.hasBloodlust)
 			{
 				AudioManager.instance.play(Assets.instance.music.bloodlustSong);
@@ -658,41 +662,32 @@ public class WorldController extends InputAdapter implements Disposable
 	 */
 	public void removeObjects(float deltaTime)
 	{
+
+		if (objectsToRemove.size > 0)
 		{
 			for (AbstractGameObject obj : objectsToRemove)
 			{
 				if (obj instanceof Bird)
 				{
-					if (obj.removeIn > 0)
+					int index = level.birds.indexOf((Bird) obj, true);
+					if (index != -1)
 					{
-						obj.removeIn -= deltaTime;
-					} else
-					{
-						int index = level.birds.indexOf((Bird) obj, true);
-						if (index != -1)
-						{
-							level.birds.removeIndex(index);
-							b2world.destroyBody(obj.body);
-						}
+						level.birds.removeIndex(index);
+						b2world.destroyBody(obj.body);
 					}
 				}
 				if (obj instanceof Frog)
 				{
-					if (obj.removeIn > 0)
+					int index = level.frogs.indexOf((Frog) obj, true);
+					if (index != -1)
 					{
-						obj.removeIn -= deltaTime;
-					} else
-					{
-						int index = level.frogs.indexOf((Frog) obj, true);
-						if (index != -1)
-						{
-							level.frogs.removeIndex(index);
-							b2world.destroyBody(obj.body);
-						}
+						level.frogs.removeIndex(index);
+						b2world.destroyBody(obj.body);
 					}
 				}
 			}
 		}
+		objectsToRemove.removeRange(0, objectsToRemove.size - 1);
 	}
 
 	/**

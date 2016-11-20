@@ -25,14 +25,14 @@ public class Bird extends AbstractGameObject
 
 	public boolean collected;
 
-	public ParticleEffect bloodParticles = new ParticleEffect();
-
 	private float floatCycleTimeLeft;
 	private boolean floatingDownwards;
 	private Vector2 floatTargetPosition;
 	private float flapTimeLeft;
 	private boolean flapUp;
 	public boolean dead;
+
+	public DeathExplosion blood;
 
 	/**
 	 * constructor
@@ -69,10 +69,6 @@ public class Bird extends AbstractGameObject
 		flapUp = temp > 0;
 		flapTimeLeft = MathUtils.random(0, FLAP_SPEED);
 		dead = false;
-		removeIn = 0.5f;
-
-		// particles
-		bloodParticles.load(Gdx.files.internal("particles/blood.pfx"), Gdx.files.internal("particles"));
 	}
 
 	/**
@@ -80,9 +76,6 @@ public class Bird extends AbstractGameObject
 	 */
 	public void render (SpriteBatch batch)
 	{
-		// draw particles
-		bloodParticles.draw(batch);
-
 		if (collected) return;
 
 		TextureRegion reg = null;
@@ -108,8 +101,6 @@ public class Bird extends AbstractGameObject
 	 */
 	public int getScore()
 	{
-		bloodParticles.setPosition(position.x + dimension.x / 2,  position.y);
-		bloodParticles.start();
 		return 1;
 	}
 
@@ -120,9 +111,6 @@ public class Bird extends AbstractGameObject
 	public void update (float deltaTime)
 	{
 		super.update(deltaTime);
-
-		// blood spray
-		bloodParticles.update(deltaTime);
 
 //		// bobbing non box2d
 //		floatCycleTimeLeft -= deltaTime;

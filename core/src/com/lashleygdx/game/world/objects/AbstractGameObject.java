@@ -27,7 +27,6 @@ public abstract class AbstractGameObject
 
 	// box2d
 	public Body body;
-	public float removeIn = 0.0f;
 
 	// animations
 	public float stateTime;
