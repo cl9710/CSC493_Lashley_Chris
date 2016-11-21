@@ -497,7 +497,6 @@ public class WorldController extends InputAdapter implements Disposable
 				if (player.animation != player.isJumping)
 					player.setAnimation(player.isJumping);
 				player.velocity.y = MathUtils.clamp(player.velocity.y, -9.81f, 9.81f);
-//					player.body.setLinearVelocity(player.velocity);
 			} else
 			{
 				player.setJumping(false);

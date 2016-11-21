@@ -120,6 +120,8 @@ public class Cat extends AbstractGameObject
 				// start jump time
 				timeJumping = 0;
 				jumpState = JUMP_STATE.JUMP_RISING;
+				if (animation != isJumping)
+					setAnimation(isJumping);
 			}
 			break;
 		case JUMP_RISING:	// rising in the air
@@ -209,9 +211,12 @@ public class Cat extends AbstractGameObject
 							setAnimation(isRunning);
 				}
 			}
-//			if (velocity.y > 0)
+//			if (velocity.y > 0 && jumpState != JUMP_STATE.JUMP_FALLING)
 //				if (animation != isJumping)
 //					setAnimation(isJumping);
+			if (jumpState == JUMP_STATE.JUMP_RISING)
+				if (animation != isJumping)
+					setAnimation(isJumping);
 			if (velocity.x == 0 && velocity.y <= 0)
 				if (animation != isIdle)
 					setAnimation(isIdle);
