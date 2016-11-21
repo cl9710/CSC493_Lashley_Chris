@@ -304,7 +304,6 @@ public class WorldController extends InputAdapter implements Disposable
 		case JUMP_FALLING:
 			player.position.y = rock.position.y + player.bounds.height;
 			player.jumpState = JUMP_STATE.GROUNDED;
-			playerFriction.setFriction(0.5f);
 			break;
 		case JUMP_RISING:
 			player.position.y = rock.position.y + player.bounds.height;
@@ -371,6 +370,7 @@ public class WorldController extends InputAdapter implements Disposable
 			player.freeze();
 //			player.body.setLinearVelocity(new Vector2(0, 0));
 			levelNum++;
+			b2world.destroyBody(player.body);
 
 			Vector2 playerCenter = new Vector2(player.position);
 			playerCenter.x += player.bounds.width;
@@ -391,6 +391,8 @@ public class WorldController extends InputAdapter implements Disposable
 				AudioManager.instance.play(Assets.instance.sounds.catYell);
 				AudioManager.instance.play(Assets.instance.sounds.dogAttack);
 				playerDied();
+				b2world.destroyBody(player.body);
+
 				Gdx.app.log(TAG,  "Stay away from dogs");
 			}
 	}
@@ -487,13 +489,14 @@ public class WorldController extends InputAdapter implements Disposable
 			if (Gdx.input.isTouched() || Gdx.input.isKeyPressed(Keys.SPACE))
 			{
 				player.setJumping(true);
-					player.body.applyLinearImpulse(0, 2, player.position.x, player.position.y, true);
-					player.dustParticles.allowCompletion();
-					dustDelay += deltaTime;
-					dustDelay += deltaTime;
-					if (player.animation != player.isJumping)
-						player.setAnimation(player.isJumping);
-					player.velocity.y = MathUtils.clamp(player.velocity.y, -9.81f, 9.81f);
+				player.body.applyLinearImpulse(0, 2, player.position.x, player.position.y, true);
+				playerFriction.setFriction(0.2f);
+				player.dustParticles.allowCompletion();
+				dustDelay += deltaTime;
+				dustDelay += deltaTime;
+				if (player.animation != player.isJumping)
+					player.setAnimation(player.isJumping);
+				player.velocity.y = MathUtils.clamp(player.velocity.y, -9.81f, 9.81f);
 //					player.body.setLinearVelocity(player.velocity);
 			} else
 			{
