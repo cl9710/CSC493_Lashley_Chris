@@ -7,7 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
-import com.lashleygdx.game.util.CollisionHandler;
+//import com.lashleygdx.game.util.CollisionHandler;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.objects.Cat;
 import com.lashleygdx.game.world.objects.Frog;
@@ -25,6 +25,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -59,6 +60,8 @@ public class WorldController extends InputAdapter implements Disposable
 	// box2d physics
 	public World b2world;
 	public Array<AbstractGameObject> objectsToRemove;
+	public float dustDelay;
+	public Fixture playerFriction;
 
 	/**
 	 * initialize a level
@@ -74,6 +77,7 @@ public class WorldController extends InputAdapter implements Disposable
 		player = level.cat;
 		cameraHelper.setTarget(player);
 		objectsToRemove = new Array<AbstractGameObject>();
+		dustDelay = 0;
 		initPhysics();
 	}
 
@@ -172,6 +176,17 @@ public class WorldController extends InputAdapter implements Disposable
 			handleInputGame(deltaTime);
 		}
 		level.update(deltaTime);
+		if (dustDelay > 0)
+			dustDelay -= deltaTime;
+		if (dustDelay <= 0)
+		{
+			Vector2 pos = new Vector2();
+			pos.x = player.position.x + player.dimension.x / 2;
+			pos.y = player.position.y;
+			dustDelay = 0;
+			player.dustParticles.start();
+			player.dustParticles.setPosition(pos.x, pos.y);
+		}
 		testCollisions();
 		b2world.step(deltaTime,  8,  3);
 		cameraHelper.update(deltaTime);
@@ -289,6 +304,7 @@ public class WorldController extends InputAdapter implements Disposable
 		case JUMP_FALLING:
 			player.position.y = rock.position.y + player.bounds.height;
 			player.jumpState = JUMP_STATE.GROUNDED;
+			playerFriction.setFriction(0.5f);
 			break;
 		case JUMP_RISING:
 			player.position.y = rock.position.y + player.bounds.height;
@@ -353,6 +369,7 @@ public class WorldController extends InputAdapter implements Disposable
 			if (player.jumpState != JUMP_STATE.GROUNDED)
 				player.jumpState = JUMP_STATE.JUMP_FALLING;
 			player.freeze();
+//			player.body.setLinearVelocity(new Vector2(0, 0));
 			levelNum++;
 
 			Vector2 playerCenter = new Vector2(player.position);
@@ -436,12 +453,30 @@ public class WorldController extends InputAdapter implements Disposable
 		{
 			if (Gdx.input.isKeyPressed(Keys.LEFT))
 			{
-				player.velocity.x = -player.terminalVelocity.x;
+//				player.velocity.x = -player.terminalVelocity.x;
+				if (player.velocity.x > -player.terminalVelocity.x)
+				{
+					player.body.applyLinearImpulse(-1, 0, player.position.x, player.position.y, true);
+					player.velocity.set(player.body.getLinearVelocity());
+					player.velocity.x = MathUtils.clamp(player.velocity.x, -player.terminalVelocity.x, player.terminalVelocity.x);
+					player.body.setLinearVelocity(player.velocity);
+				}
 			} else if (Gdx.input.isKeyPressed(Keys.RIGHT))
 			{
-				player.velocity.x = player.terminalVelocity.x;
+//				player.velocity.x = player.terminalVelocity.x;
+				if (player.velocity.x < player.terminalVelocity.x)
+				{
+					player.body.applyLinearImpulse(1, 0, player.position.x, player.position.y, true);
+					player.velocity.set(player.body.getLinearVelocity());
+					player.velocity.x = MathUtils.clamp(player.velocity.x, -player.terminalVelocity.x, player.terminalVelocity.x);
+					player.body.setLinearVelocity(player.velocity);
+				}
 			} else	// execute auto forward movement on non-desktop platform
 			{
+				player.velocity.set(player.body.getLinearVelocity());
+				player.velocity.x = MathUtils.clamp(player.velocity.x, -player.terminalVelocity.x, player.terminalVelocity.x);
+				player.body.setLinearVelocity(player.velocity);
+
 				if (Gdx.app.getType() != ApplicationType.Desktop)
 				{
 					player.velocity.x = player.terminalVelocity.x;
@@ -452,9 +487,23 @@ public class WorldController extends InputAdapter implements Disposable
 			if (Gdx.input.isTouched() || Gdx.input.isKeyPressed(Keys.SPACE))
 			{
 				player.setJumping(true);
+					player.body.applyLinearImpulse(0, 2, player.position.x, player.position.y, true);
+					player.dustParticles.allowCompletion();
+					dustDelay += deltaTime;
+					dustDelay += deltaTime;
+					if (player.animation != player.isJumping)
+						player.setAnimation(player.isJumping);
+					player.velocity.y = MathUtils.clamp(player.velocity.y, -9.81f, 9.81f);
+//					player.body.setLinearVelocity(player.velocity);
 			} else
 			{
 				player.setJumping(false);
+				if (player.velocity.y > -player.terminalVelocity.y)
+				{
+					player.velocity.set(player.body.getLinearVelocity());
+					player.velocity.y = MathUtils.clamp(player.velocity.y, -player.terminalVelocity.y, player.terminalVelocity.y);
+					player.body.setLinearVelocity(player.velocity);
+				}
 			}
 		}
 	}
@@ -537,9 +586,8 @@ public class WorldController extends InputAdapter implements Disposable
 			// set physical attributes
 			FixtureDef fixtureDef = new FixtureDef();
 			fixtureDef.shape = polygonShape;
-			fixtureDef.density = 50;
-			fixtureDef.restitution = 0.5f;
-			fixtureDef.friction = 0.5f;
+			fixtureDef.density = 1;
+			fixtureDef.friction = 0.2f;
 			body.createFixture(fixtureDef);
 			polygonShape.dispose();
 			// finally, add new deadBird to list for updating/rendering
@@ -569,9 +617,8 @@ public class WorldController extends InputAdapter implements Disposable
 			// set physical attributes
 			FixtureDef fixtureDef = new FixtureDef();
 			fixtureDef.shape = polygonShape;
-			fixtureDef.density = 50;
-			fixtureDef.restitution = 0.5f;
-			fixtureDef.friction = 0.5f;
+			fixtureDef.density = 1;
+			fixtureDef.friction = 0.2f;
 			body.createFixture(fixtureDef);
 			polygonShape.dispose();
 			// finally, add new deadFrog to list for updating/rendering
@@ -582,21 +629,25 @@ public class WorldController extends InputAdapter implements Disposable
 	/**
 	 * create a box2d body (for most objects)
 	 */
-	private Body createBody(AbstractGameObject obj, BodyType type, float rotation)
+	private Body createBody(AbstractGameObject obj, BodyType type, float weight, float friction)
 	{
 		Vector2 origin = new Vector2();
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = type;
 		bodyDef.position.set(obj.position);
+		bodyDef.fixedRotation = true;
 		Body body = b2world.createBody(bodyDef);
 		body.setUserData(obj);	// collision handler
+		body.setGravityScale(1);
 		obj.body = body;
 		PolygonShape polygonShape = new PolygonShape();
 		origin.x = obj.bounds.width / 2.0f;
 		origin.y = obj.bounds.height / 2.0f;
-		polygonShape.setAsBox(obj.bounds.width / 2.0f, obj.bounds.height / 2.0f, origin, rotation);
+		polygonShape.setAsBox(obj.bounds.width / 2.0f, obj.bounds.height / 2.0f, origin, 0);
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = polygonShape;
+		fixtureDef.density = weight;
+		fixtureDef.friction = friction;
 		body.createFixture(fixtureDef);
 		polygonShape.dispose();
 		return body;
@@ -614,17 +665,17 @@ public class WorldController extends InputAdapter implements Disposable
 		// rocks
 		for (Rock rock : level.rocks)
 		{
-			createBody(rock, BodyType.KinematicBody, 0);
+			createBody(rock, BodyType.StaticBody, 1000, 0.5f);
 		}
 		// birds
 		for (Bird bird : level.birds)
 		{
-			createBody(bird, BodyType.KinematicBody, 0);
+			createBody(bird, BodyType.KinematicBody, 0, 0);
 		}
 		// frogs
 		for (Frog frog : level.frogs)
 		{
-			createBody(frog, BodyType.DynamicBody, 0);
+			createBody(frog, BodyType.DynamicBody, 0, 0);
 		}
 		// dogs are different because they have a different bounding box than dimensions
 		Vector2 origin = new Vector2();
@@ -635,6 +686,7 @@ public class WorldController extends InputAdapter implements Disposable
 			bodyDef.position.set(dog.position);
 			Body body = b2world.createBody(bodyDef);
 			body.setUserData(dog);	// collision handler
+			body.setGravityScale(1);
 			dog.body = body;
 			PolygonShape polygonShape = new PolygonShape();
 			origin.x = dog.dimension.x / 2.0f;
@@ -642,9 +694,31 @@ public class WorldController extends InputAdapter implements Disposable
 			polygonShape.setAsBox(dog.dimension.x / 2.0f, dog.dimension.y / 2.0f, origin, 0);
 			FixtureDef fixtureDef = new FixtureDef();
 			fixtureDef.shape = polygonShape;
+			fixtureDef.density = 100;
+			fixtureDef.friction = 0.9f;
 			body.createFixture(fixtureDef);
 			polygonShape.dispose();
 		}
+		// player
+		Vector2 playerOrigin = new Vector2();
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyType.DynamicBody;
+		bodyDef.position.set(player.position);
+		bodyDef.fixedRotation = true;
+		Body body = b2world.createBody(bodyDef);
+		body.setUserData(player);	// collision handler
+		body.setGravityScale(1);
+		player.body = body;
+		PolygonShape playerShape = new PolygonShape();
+		playerOrigin.x = player.bounds.width / 2.0f;
+		playerOrigin.y = player.bounds.height / 2.0f;
+		playerShape.setAsBox(player.bounds.width / 4.0f, player.bounds.height / 2.1f, playerOrigin, 0);
+		FixtureDef playerFixture = new FixtureDef();
+		playerFixture.shape = playerShape;
+		playerFixture.density = 10;
+		playerFixture.friction = 0.2f;
+		playerFriction = body.createFixture(playerFixture);
+		playerShape.dispose();
 	}
 
 	/**

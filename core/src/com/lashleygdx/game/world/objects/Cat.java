@@ -39,7 +39,7 @@ public class Cat extends AbstractGameObject
 	private Animation isDead;
 //	private Animation isFalling;
 	private Animation isIdle;
-	private Animation isJumping;
+	public Animation isJumping;
 	private Animation isRunning;
 	private Animation isWalking;
 
@@ -187,7 +187,12 @@ public class Cat extends AbstractGameObject
 	@Override
 	public void update (float deltaTime)
 	{
-		super.update(deltaTime);;
+		super.update(deltaTime);
+		if (body != null)
+		{
+			// Gdx.app.log(TAG, "velY: "+velocity.y+" state: "+jumpState);
+			body.setTransform(position, 0);
+		}
 		if (!dead)
 		{
 			if (velocity.x != 0)
@@ -204,9 +209,9 @@ public class Cat extends AbstractGameObject
 							setAnimation(isRunning);
 				}
 			}
-			if (velocity.y > 0)
-				if (animation != isJumping)
-					setAnimation(isJumping);
+//			if (velocity.y > 0)
+//				if (animation != isJumping)
+//					setAnimation(isJumping);
 			if (velocity.x == 0 && velocity.y <= 0)
 				if (animation != isIdle)
 					setAnimation(isIdle);
