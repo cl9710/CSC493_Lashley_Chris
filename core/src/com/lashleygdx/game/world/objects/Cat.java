@@ -194,6 +194,7 @@ public class Cat extends AbstractGameObject
 		{
 			// Gdx.app.log(TAG, "velY: "+velocity.y+" state: "+jumpState);
 			body.setTransform(position, 0);
+//			body.setLinearVelocity(velocity);
 		}
 		if (!dead)
 		{

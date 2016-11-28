@@ -1,6 +1,7 @@
 package com.lashleygdx.game.util;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -13,6 +14,7 @@ import com.lashleygdx.game.world.objects.AbstractGameObject;
 import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.Cat;
+import com.lashleygdx.game.world.objects.DeathExplosion;
 import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
 import com.lashleygdx.game.world.objects.Dog;
 import com.lashleygdx.game.world.objects.Frog;
@@ -47,7 +49,7 @@ public class CollisionHandler implements ContactListener
 
 		//Gdx.app.log("CollisionHandler-begin A", "begin");
 
-		// processContact(contact);
+		processContact(contact);
 
 		ContactListener listener = getListener(fixtureA.getFilterData().categoryBits, fixtureB.getFilterData().categoryBits);
 		if (listener != null)
@@ -141,10 +143,48 @@ public class CollisionHandler implements ContactListener
 		if (objFixture.getBody().getUserData() instanceof Rock)
 		{
 			Cat player = (Cat)playerFixture.getBody().getUserData();
-			player.acceleration.y = 0;
-			player.velocity.y = 0;
-			player.jumpState = JUMP_STATE.GROUNDED;
-			playerFixture.getBody().setLinearVelocity(player.velocity);
+			Rock rock = (Rock)objFixture.getBody().getUserData();
+//			player.acceleration.y = 0;
+//			player.velocity.y = 0;
+//			player.jumpState = JUMP_STATE.GROUNDED;
+//			playerFixture.getBody().setLinearVelocity(player.velocity);
+			float heightDifference = Math.abs(player.position.y - (rock.position.y + rock.bounds.height));
+			boolean below = (player.position.y + player.bounds.height) < (rock.position.y + 0.1f);
+
+			if (below)
+			{
+				player.jumpState = JUMP_STATE.JUMP_FALLING;
+				player.velocity.y = MathUtils.clamp(player.velocity.y, -player.terminalVelocity.y, 0.0f);
+				return;
+			}
+			if (heightDifference >= 0.1f)
+			{
+				boolean hitRightEdge = player.position.x > (rock.position.x + rock.bounds.width - 0.11f);
+				boolean hitLeftEdge = player.position.x  < (rock.position.x);
+
+				if (hitRightEdge)
+				{
+					player.position.x = rock.position.x + rock.bounds.width;
+				} else if (hitLeftEdge)
+				{
+					player.position.x = rock.position.x - player.bounds.width;
+				}
+				return;
+			}
+
+			switch (player.jumpState)
+			{
+			case GROUNDED:
+				break;
+			case FALLING:
+			case JUMP_FALLING:
+				player.position.y = rock.position.y + player.bounds.height;
+				player.jumpState = JUMP_STATE.GROUNDED;
+				break;
+			case JUMP_RISING:
+				player.position.y = rock.position.y + player.bounds.height;
+				break;
+			}
 		}
 		else if (objFixture.getBody().getUserData() instanceof Bird)
 		{
@@ -158,6 +198,9 @@ public class CollisionHandler implements ContactListener
 				//			AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
 				AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
 				world.birdScore += bird.getScore();
+				DeathExplosion blood = new DeathExplosion(bird.position);
+				world.level.deathExplosions.add(blood);
+				blood.splat();
 				if (!world.player.hasBloodlust)
 				{
 					AudioManager.instance.play(Assets.instance.music.bloodlustSong);

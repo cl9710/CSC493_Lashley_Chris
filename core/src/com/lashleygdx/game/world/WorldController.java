@@ -7,7 +7,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
-//import com.lashleygdx.game.util.CollisionHandler;
+import com.lashleygdx.game.util.CollisionHandler;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.objects.Cat;
 import com.lashleygdx.game.world.objects.Frog;
@@ -264,92 +264,92 @@ public class WorldController extends InputAdapter implements Disposable
 		return false;
 	}
 
-	/**
-	 * handle cat / rock collisions
-	 * player can not pass through rocks normally
-	 * if they have a frog jump powerup you can jump/fly through the bottom
-	 * @param rock
-	 */
-	private void onCollisionCatWithRock (Rock rock)
-	{
-		float heightDifference = Math.abs(player.position.y - (rock.position.y + rock.bounds.height));
-		boolean below = (player.position.y + player.bounds.height) < (rock.position.y + 0.1f);
-
-		if (below)
-		{
-			player.jumpState = JUMP_STATE.JUMP_FALLING;
-			player.velocity.y = MathUtils.clamp(player.velocity.y, -player.terminalVelocity.y, 0.0f);
-			return;
-		}
-		if (heightDifference >= 0.1f)
-		{
-			boolean hitRightEdge = player.position.x > (rock.position.x + rock.bounds.width - 0.11f);
-			boolean hitLeftEdge = player.position.x  < (rock.position.x);
-
-			if (hitRightEdge)
-			{
-				player.position.x = rock.position.x + rock.bounds.width;
-			} else if (hitLeftEdge)
-			{
-				player.position.x = rock.position.x - player.bounds.width;
-			}
-			return;
-		}
-
-		switch (player.jumpState)
-		{
-		case GROUNDED:
-			break;
-		case FALLING:
-		case JUMP_FALLING:
-			player.position.y = rock.position.y + player.bounds.height;
-			player.jumpState = JUMP_STATE.GROUNDED;
-			break;
-		case JUMP_RISING:
-			player.position.y = rock.position.y + player.bounds.height;
-			break;
-		}
-	}
-
-	/**
-	 * murder birds and grants 1 stack of bloodlust
-	 * @param bird
-	 */
-	private void onCollisionCatWithBird (Bird bird)
-	{
-		if (!isVictory())
-		{
-			bird.collected = true;
-			//			AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);		// not sure i like
-			//			AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
-			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
-			birdScore += bird.getScore();
-			DeathExplosion blood = new DeathExplosion(bird.position);
-			level.deathExplosions.add(blood);
-			blood.splat();
-			if (!player.hasBloodlust)
-			{
-				AudioManager.instance.play(Assets.instance.music.bloodlustSong);
-			}
-			player.setBloodlust(true);
-			flagForRemoval(bird);
-			Gdx.app.log(TAG,  "Bird murdered");
-		}
-	}
-
-	/**
-	 * murder frogs and grants the frog jump powerup
-	 * @param frog
-	 */
-	private void onCollisionCatWithFrog (Frog frog)
-	{
-		frog.collected = true;
-		AudioManager.instance.play(Assets.instance.sounds.frog);
-		frogScore += frog.getScore();
-		player.setFrogPowerup(true);
-		flagForRemoval(frog);
-		Gdx.app.log(TAG, "Frog murdered");
-	}
+//	/**
+//	 * handle cat / rock collisions
+//	 * player can not pass through rocks normally
+//	 * if they have a frog jump powerup you can jump/fly through the bottom
+//	 * @param rock
+//	 */
+//	private void onCollisionCatWithRock (Rock rock)
+//	{
+//		float heightDifference = Math.abs(player.position.y - (rock.position.y + rock.bounds.height));
+//		boolean below = (player.position.y + player.bounds.height) < (rock.position.y + 0.1f);
+//
+//		if (below)
+//		{
+//			player.jumpState = JUMP_STATE.JUMP_FALLING;
+//			player.velocity.y = MathUtils.clamp(player.velocity.y, -player.terminalVelocity.y, 0.0f);
+//			return;
+//		}
+//		if (heightDifference >= 0.1f)
+//		{
+//			boolean hitRightEdge = player.position.x > (rock.position.x + rock.bounds.width - 0.11f);
+//			boolean hitLeftEdge = player.position.x  < (rock.position.x);
+//
+//			if (hitRightEdge)
+//			{
+//				player.position.x = rock.position.x + rock.bounds.width;
+//			} else if (hitLeftEdge)
+//			{
+//				player.position.x = rock.position.x - player.bounds.width;
+//			}
+//			return;
+//		}
+//
+//		switch (player.jumpState)
+//		{
+//		case GROUNDED:
+//			break;
+//		case FALLING:
+//		case JUMP_FALLING:
+//			player.position.y = rock.position.y + player.bounds.height;
+//			player.jumpState = JUMP_STATE.GROUNDED;
+//			break;
+//		case JUMP_RISING:
+//			player.position.y = rock.position.y + player.bounds.height;
+//			break;
+//		}
+//	}
+//
+//	/**
+//	 * murder birds and grants 1 stack of bloodlust
+//	 * @param bird
+//	 */
+//	private void onCollisionCatWithBird (Bird bird)
+//	{
+//		if (!isVictory())
+//		{
+//			bird.collected = true;
+//			//			AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);		// not sure i like
+//			//			AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
+//			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
+//			birdScore += bird.getScore();
+//			DeathExplosion blood = new DeathExplosion(bird.position);
+//			level.deathExplosions.add(blood);
+//			blood.splat();
+//			if (!player.hasBloodlust)
+//			{
+//				AudioManager.instance.play(Assets.instance.music.bloodlustSong);
+//			}
+//			player.setBloodlust(true);
+//			flagForRemoval(bird);
+//			Gdx.app.log(TAG,  "Bird murdered");
+//		}
+//	}
+//
+//	/**
+//	 * murder frogs and grants the frog jump powerup
+//	 * @param frog
+//	 */
+//	private void onCollisionCatWithFrog (Frog frog)
+//	{
+//		frog.collected = true;
+//		AudioManager.instance.play(Assets.instance.sounds.frog);
+//		frogScore += frog.getScore();
+//		player.setFrogPowerup(true);
+//		flagForRemoval(frog);
+//		Gdx.app.log(TAG, "Frog murdered");
+//	}
 
 	/**
 	 * reach the goal
@@ -378,24 +378,24 @@ public class WorldController extends InputAdapter implements Disposable
 		}
 	}
 
-	/**
-	 * check for cat being attacked by a dog
-	 * @param dog
-	 */
-	private void onCollisionCatWithDog (Dog dog)
-	{
-		if (!isGameOver())
-			if (!player.dead)
-			{
-				AudioManager.instance.stopMusic();
-				AudioManager.instance.play(Assets.instance.sounds.catYell);
-				AudioManager.instance.play(Assets.instance.sounds.dogAttack);
-				playerDied();
-				b2world.destroyBody(player.body);
-
-				Gdx.app.log(TAG,  "Stay away from dogs");
-			}
-	}
+//	/**
+//	 * check for cat being attacked by a dog
+//	 * @param dog
+//	 */
+//	private void onCollisionCatWithDog (Dog dog)
+//	{
+//		if (!isGameOver())
+//			if (!player.dead)
+//			{
+//				AudioManager.instance.stopMusic();
+//				AudioManager.instance.play(Assets.instance.sounds.catYell);
+//				AudioManager.instance.play(Assets.instance.sounds.dogAttack);
+//				playerDied();
+//				b2world.destroyBody(player.body);
+//
+//				Gdx.app.log(TAG,  "Stay away from dogs");
+//			}
+//	}
 
 	/**
 	 * check for player collision with game objects and world
@@ -405,40 +405,40 @@ public class WorldController extends InputAdapter implements Disposable
 		r1.set(player.position.x, player.position.y, player.bounds.width,
 				player.bounds.height);
 
-		// test collision: player <--> rocks
-		for (Rock rock : level.rocks)
-		{
-			r2.set(rock.position.x, rock.position.y, rock.bounds.width, rock.bounds.height);
-			if (!r1.overlaps(r2)) continue;
-			onCollisionCatWithRock(rock);
-			// IMPORTANT: must do all collisions for valid edge testing on rocks
-		}
-		// test collision: player <--> bird
-		for (Bird bird : level.birds)
-		{
-			if (bird.collected) continue;
-			r2.set(bird.position.x, bird.position.y, bird.bounds.width, bird.bounds.height);
-			if (!r1.overlaps(r2)) continue;
-			onCollisionCatWithBird(bird);
-			break;
-		}
-		// test collision: player <--> frog
-		for (Frog frog : level.frogs)
-		{
-			if (frog.collected) continue;
-			r2.set(frog.position.x, frog.position.y, frog.bounds.width, frog.bounds.height);
-			if (!r1.overlaps(r2)) continue;
-			onCollisionCatWithFrog(frog);
-			break;
-		}
-		// test collision: player <--> dog
-		for (Dog dog : level.dogs)
-		{
-			r2.set(dog.position.x + dog.origin.x, dog.position.y, dog.bounds.width, dog.bounds.height);
-			if (!r1.overlaps(r2)) continue;
-			onCollisionCatWithDog(dog);
-			break;
-		}
+//		// test collision: player <--> rocks
+//		for (Rock rock : level.rocks)
+//		{
+//			r2.set(rock.position.x, rock.position.y, rock.bounds.width, rock.bounds.height);
+//			if (!r1.overlaps(r2)) continue;
+//			onCollisionCatWithRock(rock);
+//			// IMPORTANT: must do all collisions for valid edge testing on rocks
+//		}
+//		// test collision: player <--> bird
+//		for (Bird bird : level.birds)
+//		{
+//			if (bird.collected) continue;
+//			r2.set(bird.position.x, bird.position.y, bird.bounds.width, bird.bounds.height);
+//			if (!r1.overlaps(r2)) continue;
+//			onCollisionCatWithBird(bird);
+//			break;
+//		}
+//		// test collision: player <--> frog
+//		for (Frog frog : level.frogs)
+//		{
+//			if (frog.collected) continue;
+//			r2.set(frog.position.x, frog.position.y, frog.bounds.width, frog.bounds.height);
+//			if (!r1.overlaps(r2)) continue;
+//			onCollisionCatWithFrog(frog);
+//			break;
+//		}
+//		// test collision: player <--> dog
+//		for (Dog dog : level.dogs)
+//		{
+//			r2.set(dog.position.x + dog.origin.x, dog.position.y, dog.bounds.width, dog.bounds.height);
+//			if (!r1.overlaps(r2)) continue;
+//			onCollisionCatWithDog(dog);
+//			break;
+//		}
 		// test collision: cat <--> house
 		r2.set(level.house.position.x, level.house.position.y, level.house.bounds.width, level.house.bounds.height);
 		if (r1.overlaps(r2))
@@ -631,7 +631,7 @@ public class WorldController extends InputAdapter implements Disposable
 	/**
 	 * create a box2d body (for most objects)
 	 */
-	private Body createBody(AbstractGameObject obj, BodyType type, float weight, float friction)
+	private Body createBody(AbstractGameObject obj, BodyType type, float weight, float friction, boolean sensor)
 	{
 		Vector2 origin = new Vector2();
 		BodyDef bodyDef = new BodyDef();
@@ -650,6 +650,7 @@ public class WorldController extends InputAdapter implements Disposable
 		fixtureDef.shape = polygonShape;
 		fixtureDef.density = weight;
 		fixtureDef.friction = friction;
+		fixtureDef.isSensor = sensor;
 		body.createFixture(fixtureDef);
 		polygonShape.dispose();
 		return body;
@@ -663,21 +664,21 @@ public class WorldController extends InputAdapter implements Disposable
 		if (b2world != null) b2world.dispose();
 
 		b2world = new World(new Vector2(0, -9.81f), true);
-		//		b2world.setContactListener(new CollisionHandler(this));	// box2d
+		b2world.setContactListener(new CollisionHandler(this));	// box2d
 		// rocks
 		for (Rock rock : level.rocks)
 		{
-			createBody(rock, BodyType.StaticBody, 1000, 0.5f);
+			createBody(rock, BodyType.StaticBody, 1000, 0.5f, false);
 		}
 		// birds
 		for (Bird bird : level.birds)
 		{
-			createBody(bird, BodyType.KinematicBody, 0, 0);
+			createBody(bird, BodyType.KinematicBody, 0, 0, true);
 		}
 		// frogs
 		for (Frog frog : level.frogs)
 		{
-			createBody(frog, BodyType.DynamicBody, 0, 0);
+			createBody(frog, BodyType.DynamicBody, 0, 0, false);
 		}
 		// dogs are different because they have a different bounding box than dimensions
 		Vector2 origin = new Vector2();
@@ -693,7 +694,7 @@ public class WorldController extends InputAdapter implements Disposable
 			PolygonShape polygonShape = new PolygonShape();
 			origin.x = dog.dimension.x / 2.0f;
 			origin.y = dog.dimension.x / 2.0f;
-			polygonShape.setAsBox(dog.dimension.x / 2.0f, dog.dimension.y / 2.0f, origin, 0);
+			polygonShape.setAsBox(dog.dimension.x / 4.0f, dog.dimension.y / 2.2f, origin, 0);
 			FixtureDef fixtureDef = new FixtureDef();
 			fixtureDef.shape = polygonShape;
 			fixtureDef.density = 100;
@@ -719,7 +720,15 @@ public class WorldController extends InputAdapter implements Disposable
 		playerFixture.shape = playerShape;
 		playerFixture.density = 10;
 		playerFixture.friction = 0.2f;
+		body.createFixture(playerFixture);
+		// foot sensor
+		playerOrigin.y = playerOrigin.y - (player.bounds.height / 2);
+		playerShape.setAsBox(player.bounds.width / 6, player.bounds.height / 24, playerOrigin, 0);
+		playerFixture.shape = playerShape;
+		playerFixture.isSensor = true;
+		playerFixture.friction = 0.2f;
 		playerFriction = body.createFixture(playerFixture);
+
 		playerShape.dispose();
 	}
 
