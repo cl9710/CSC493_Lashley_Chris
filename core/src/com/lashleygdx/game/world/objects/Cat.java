@@ -88,8 +88,8 @@ public class Cat extends AbstractGameObject
 		bounds.set(0, 0, dimension.x, dimension.y);
 		// set physics values
 		terminalVelocity.set(3.0f, 4.0f);
-		friction.set(12.0f, 0.0f);
-		acceleration.set(0.0f, -25.0f);
+//		friction.set(12.0f, 0.0f);
+//		acceleration.set(0.0f, -25.0f);
 		// view direction
 		viewDirection = VIEW_DIRECTION.RIGHT;
 		// jump state
@@ -190,16 +190,18 @@ public class Cat extends AbstractGameObject
 	public void update (float deltaTime)
 	{
 		super.update(deltaTime);
-		if (body != null)
-		{
+//		if (body != null)
+//		{
 			// Gdx.app.log(TAG, "velY: "+velocity.y+" state: "+jumpState);
-			body.setTransform(position, 0);
+//			body.setTransform(position, 0);
 //			body.setLinearVelocity(velocity);
-		}
+//		}
 		if (!dead)
 		{
 			if (velocity.x != 0)
 			{
+				if (jumpState == JUMP_STATE.GROUNDED)
+					dustParticles.start();
 				viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
 				if (jumpState != JUMP_STATE.JUMP_RISING)
 				{
@@ -216,11 +218,17 @@ public class Cat extends AbstractGameObject
 //				if (animation != isJumping)
 //					setAnimation(isJumping);
 			if (jumpState == JUMP_STATE.JUMP_RISING)
+			{
 				if (animation != isJumping)
 					setAnimation(isJumping);
-			if (velocity.x == 0 && velocity.y <= 0)
+				body.setLinearVelocity(velocity.x, 8f);
+			}
+			if (velocity.x == 0 && velocity.y == 0)
+			{
+				dustParticles.allowCompletion();
 				if (animation != isIdle)
 					setAnimation(isIdle);
+			}
 			if (timeLeftFrogPowerup > 0)
 			{
 				timeLeftFrogPowerup -= deltaTime;
@@ -265,7 +273,7 @@ public class Cat extends AbstractGameObject
 			if (velocity.x != 0)
 			{
 				dustParticles.setPosition(position.x + dimension.x / 2,  position.y);
-				dustParticles.start();
+				//dustParticles.start();
 			}
 			break;
 		case JUMP_RISING:

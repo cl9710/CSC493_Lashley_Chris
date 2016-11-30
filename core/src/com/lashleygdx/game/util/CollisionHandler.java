@@ -46,6 +46,27 @@ public class CollisionHandler implements ContactListener
 	{
 		Fixture fixtureA = contact.getFixtureA();
 		Fixture fixtureB = contact.getFixtureB();
+		AbstractGameObject objA = (AbstractGameObject)fixtureA.getBody().getUserData();
+		AbstractGameObject objB = (AbstractGameObject)fixtureB.getBody().getUserData();
+
+		if (objA instanceof Cat)
+		{
+			if (fixtureA.isSensor() && objB instanceof Rock)
+			{
+				world.player.jumpState = JUMP_STATE.GROUNDED;
+				world.player.dustParticles.start();
+				Gdx.app.log("grounded", "start");
+			}
+		}
+		else if (objB instanceof Cat)
+		{
+			if (fixtureB.isSensor() && objA instanceof Rock)
+			{
+				world.player.jumpState = JUMP_STATE.GROUNDED;
+				world.player.dustParticles.start();
+				Gdx.app.log("grounded", "start");
+			}
+		}
 
 		//Gdx.app.log("CollisionHandler-begin A", "begin");
 
@@ -87,9 +108,29 @@ public class CollisionHandler implements ContactListener
 	{
 		Fixture fixtureA = contact.getFixtureA();
 		Fixture fixtureB = contact.getFixtureB();
+		AbstractGameObject objA = (AbstractGameObject)fixtureA.getBody().getUserData();
+		AbstractGameObject objB = (AbstractGameObject)fixtureB.getBody().getUserData();
 
+		if (objA instanceof Cat)
+		{
+			if (fixtureA.isSensor() && objB instanceof Rock)
+			{
+				world.player.jumpState = JUMP_STATE.FALLING;
+				world.player.dustParticles.allowCompletion();
+				Gdx.app.log("grounded", "end");
+			}
+		}
+		else if (objB instanceof Cat)
+		{
+			if (fixtureB.isSensor() && objA instanceof Rock)
+			{
+				world.player.jumpState = JUMP_STATE.FALLING;
+				world.player.dustParticles.allowCompletion();
+				Gdx.app.log("grounded", "end");
+			}
+		}
 		// Gdx.app.log("CollisionHandler-end A", "end");
-		processContact(contact);
+		// processContact(contact);
 
 		// Gdx.app.log("CollisionHandler-end A", fixtureA.getBody().getLinearVelocity().x+" : "+fixtureA.getBody().getLinearVelocity().y);
 		// Gdx.app.log("CollisionHandler-end B", fixtureB.getBody().getLinearVelocity().x+" : "+fixtureB.getBody().getLinearVelocity().y);
@@ -144,47 +185,6 @@ public class CollisionHandler implements ContactListener
 		{
 			Cat player = (Cat)playerFixture.getBody().getUserData();
 			Rock rock = (Rock)objFixture.getBody().getUserData();
-//			player.acceleration.y = 0;
-//			player.velocity.y = 0;
-//			player.jumpState = JUMP_STATE.GROUNDED;
-//			playerFixture.getBody().setLinearVelocity(player.velocity);
-			float heightDifference = Math.abs(player.position.y - (rock.position.y + rock.bounds.height));
-			boolean below = (player.position.y + player.bounds.height) < (rock.position.y + 0.1f);
-
-			if (below)
-			{
-				player.jumpState = JUMP_STATE.JUMP_FALLING;
-				player.velocity.y = MathUtils.clamp(player.velocity.y, -player.terminalVelocity.y, 0.0f);
-				return;
-			}
-			if (heightDifference >= 0.1f)
-			{
-				boolean hitRightEdge = player.position.x > (rock.position.x + rock.bounds.width - 0.11f);
-				boolean hitLeftEdge = player.position.x  < (rock.position.x);
-
-				if (hitRightEdge)
-				{
-					player.position.x = rock.position.x + rock.bounds.width;
-				} else if (hitLeftEdge)
-				{
-					player.position.x = rock.position.x - player.bounds.width;
-				}
-				return;
-			}
-
-			switch (player.jumpState)
-			{
-			case GROUNDED:
-				break;
-			case FALLING:
-			case JUMP_FALLING:
-				player.position.y = rock.position.y + player.bounds.height;
-				player.jumpState = JUMP_STATE.GROUNDED;
-				break;
-			case JUMP_RISING:
-				player.position.y = rock.position.y + player.bounds.height;
-				break;
-			}
 		}
 		else if (objFixture.getBody().getUserData() instanceof Bird)
 		{
