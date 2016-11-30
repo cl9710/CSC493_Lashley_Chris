@@ -16,7 +16,6 @@ import com.lashleygdx.game.world.objects.AbstractGameObject;
 import com.lashleygdx.game.world.objects.Bird;
 import com.lashleygdx.game.world.objects.Rock;
 import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
-import com.lashleygdx.game.world.objects.DeathExplosion;
 import com.lashleygdx.game.world.objects.Dog;
 import com.badlogic.gdx.Game;
 import com.lashleygdx.game.screens.MenuScreen;
@@ -174,7 +173,8 @@ public class WorldController extends InputAdapter implements Disposable
 			handleInputGame(deltaTime);
 		}
 		level.update(deltaTime);
-		player.dustParticles.setPosition(player.position.x, player.position.y);
+		float pos = player.position.x + (player.bounds.width / 2);
+		player.dustParticles.setPosition(pos, player.position.y);
 		testCollisions();
 		b2world.step(deltaTime,  8,  3);
 		cameraHelper.update(deltaTime);
@@ -252,93 +252,6 @@ public class WorldController extends InputAdapter implements Disposable
 		return false;
 	}
 
-	//	/**
-	//	 * handle cat / rock collisions
-	//	 * player can not pass through rocks normally
-	//	 * if they have a frog jump powerup you can jump/fly through the bottom
-	//	 * @param rock
-	//	 */
-	//	private void onCollisionCatWithRock (Rock rock)
-	//	{
-	//		float heightDifference = Math.abs(player.position.y - (rock.position.y + rock.bounds.height));
-	//		boolean below = (player.position.y + player.bounds.height) < (rock.position.y + 0.1f);
-	//
-	//		if (below)
-	//		{
-	//			player.jumpState = JUMP_STATE.JUMP_FALLING;
-	//			player.velocity.y = MathUtils.clamp(player.velocity.y, -player.terminalVelocity.y, 0.0f);
-	//			return;
-	//		}
-	//		if (heightDifference >= 0.1f)
-	//		{
-	//			boolean hitRightEdge = player.position.x > (rock.position.x + rock.bounds.width - 0.11f);
-	//			boolean hitLeftEdge = player.position.x  < (rock.position.x);
-	//
-	//			if (hitRightEdge)
-	//			{
-	//				player.position.x = rock.position.x + rock.bounds.width;
-	//			} else if (hitLeftEdge)
-	//			{
-	//				player.position.x = rock.position.x - player.bounds.width;
-	//			}
-	//			return;
-	//		}
-	//
-	//		switch (player.jumpState)
-	//		{
-	//		case GROUNDED:
-	//			break;
-	//		case FALLING:
-	//		case JUMP_FALLING:
-	//			player.position.y = rock.position.y + player.bounds.height;
-	//			player.jumpState = JUMP_STATE.GROUNDED;
-	//			break;
-	//		case JUMP_RISING:
-	//			player.position.y = rock.position.y + player.bounds.height;
-	//			break;
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * murder birds and grants 1 stack of bloodlust
-	//	 * @param bird
-	//	 */
-	//	private void onCollisionCatWithBird (Bird bird)
-	//	{
-	//		if (!isVictory())
-	//		{
-	//			bird.collected = true;
-	//			//			AudioManager.instance.play(Assets.instance.sounds.wingsFlapping);		// not sure i like
-	//			//			AudioManager.instance.play(Assets.instance.sounds.squawk);				// not sure i like
-	//			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
-	//			birdScore += bird.getScore();
-	//			DeathExplosion blood = new DeathExplosion(bird.position);
-	//			level.deathExplosions.add(blood);
-	//			blood.splat();
-	//			if (!player.hasBloodlust)
-	//			{
-	//				AudioManager.instance.play(Assets.instance.music.bloodlustSong);
-	//			}
-	//			player.setBloodlust(true);
-	//			flagForRemoval(bird);
-	//			Gdx.app.log(TAG,  "Bird murdered");
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * murder frogs and grants the frog jump powerup
-	//	 * @param frog
-	//	 */
-	//	private void onCollisionCatWithFrog (Frog frog)
-	//	{
-	//		frog.collected = true;
-	//		AudioManager.instance.play(Assets.instance.sounds.frog);
-	//		frogScore += frog.getScore();
-	//		player.setFrogPowerup(true);
-	//		flagForRemoval(frog);
-	//		Gdx.app.log(TAG, "Frog murdered");
-	//	}
-
 	/**
 	 * reach the goal
 	 * @param house
@@ -356,7 +269,7 @@ public class WorldController extends InputAdapter implements Disposable
 			if (player.jumpState != JUMP_STATE.GROUNDED)
 				player.jumpState = JUMP_STATE.JUMP_FALLING;
 			player.freeze();
-			//			player.body.setLinearVelocity(new Vector2(0, 0));
+			player.body.setLinearVelocity(new Vector2(0, 0));
 			levelNum++;
 			b2world.destroyBody(player.body);
 
@@ -366,25 +279,6 @@ public class WorldController extends InputAdapter implements Disposable
 		}
 	}
 
-	//	/**
-	//	 * check for cat being attacked by a dog
-	//	 * @param dog
-	//	 */
-	//	private void onCollisionCatWithDog (Dog dog)
-	//	{
-	//		if (!isGameOver())
-	//			if (!player.dead)
-	//			{
-	//				AudioManager.instance.stopMusic();
-	//				AudioManager.instance.play(Assets.instance.sounds.catYell);
-	//				AudioManager.instance.play(Assets.instance.sounds.dogAttack);
-	//				playerDied();
-	//				b2world.destroyBody(player.body);
-	//
-	//				Gdx.app.log(TAG,  "Stay away from dogs");
-	//			}
-	//	}
-
 	/**
 	 * check for player collision with game objects and world
 	 */
@@ -393,40 +287,6 @@ public class WorldController extends InputAdapter implements Disposable
 		r1.set(player.position.x, player.position.y, player.bounds.width,
 				player.bounds.height);
 
-		//		// test collision: player <--> rocks
-		//		for (Rock rock : level.rocks)
-		//		{
-		//			r2.set(rock.position.x, rock.position.y, rock.bounds.width, rock.bounds.height);
-		//			if (!r1.overlaps(r2)) continue;
-		//			onCollisionCatWithRock(rock);
-		//			// IMPORTANT: must do all collisions for valid edge testing on rocks
-		//		}
-		//		// test collision: player <--> bird
-		//		for (Bird bird : level.birds)
-		//		{
-		//			if (bird.collected) continue;
-		//			r2.set(bird.position.x, bird.position.y, bird.bounds.width, bird.bounds.height);
-		//			if (!r1.overlaps(r2)) continue;
-		//			onCollisionCatWithBird(bird);
-		//			break;
-		//		}
-		//		// test collision: player <--> frog
-		//		for (Frog frog : level.frogs)
-		//		{
-		//			if (frog.collected) continue;
-		//			r2.set(frog.position.x, frog.position.y, frog.bounds.width, frog.bounds.height);
-		//			if (!r1.overlaps(r2)) continue;
-		//			onCollisionCatWithFrog(frog);
-		//			break;
-		//		}
-		//		// test collision: player <--> dog
-		//		for (Dog dog : level.dogs)
-		//		{
-		//			r2.set(dog.position.x + dog.origin.x, dog.position.y, dog.bounds.width, dog.bounds.height);
-		//			if (!r1.overlaps(r2)) continue;
-		//			onCollisionCatWithDog(dog);
-		//			break;
-		//		}
 		// test collision: cat <--> house
 		r2.set(level.house.position.x, level.house.position.y, level.house.bounds.width, level.house.bounds.height);
 		if (r1.overlaps(r2))
@@ -443,31 +303,16 @@ public class WorldController extends InputAdapter implements Disposable
 		{
 			if (Gdx.input.isKeyPressed(Keys.LEFT))
 			{
-				//				player.velocity.x = -player.terminalVelocity.x;
-//				if (player.velocity.x > -player.terminalVelocity.x)
-//				{
-//					player.velocity.x = -player.terminalVelocity.x;
 					player.body.applyLinearImpulse(-player.terminalVelocity.x, 0, player.position.x, player.position.y, true);
 					player.velocity.set(player.body.getLinearVelocity());
 					player.velocity.x = MathUtils.clamp(player.velocity.x, -player.terminalVelocity.x, player.terminalVelocity.x);
 					player.body.setLinearVelocity(player.velocity);
-//				}
 			} else if (Gdx.input.isKeyPressed(Keys.RIGHT))
 			{
-				//				player.velocity.x = player.terminalVelocity.x;
-//				if (player.velocity.x < player.terminalVelocity.x)
-//				{
 					player.body.applyLinearImpulse(player.terminalVelocity.x, 0, player.position.x, player.position.y, true);
 					player.velocity.set(player.body.getLinearVelocity());
 					player.velocity.x = MathUtils.clamp(player.velocity.x, -player.terminalVelocity.x, player.terminalVelocity.x);
 					player.body.setLinearVelocity(player.velocity);
-//					player.velocity.x = player.terminalVelocity.x;
-					//player.body.applyLinearImpulse(-player.terminalVelocity.x, 0, player.position.x, player.position.y, true);
-					//player.velocity.set(player.body.getLinearVelocity());
-					//player.velocity.x = MathUtils.clamp(player.velocity.x, -player.terminalVelocity.x, player.terminalVelocity.x);
-//					player.body.setLinearVelocity(player.velocity);
-
-//				}
 			} else	// execute auto forward movement on non-desktop platform
 			{
 				player.velocity.set(player.body.getLinearVelocity());
@@ -486,9 +331,12 @@ public class WorldController extends InputAdapter implements Disposable
 				if (player.jumpState == JUMP_STATE.GROUNDED)
 				{
 					player.setJumping(true);
-					//player.body.applyLinearImpulse(0, 2, player.position.x, player.position.y, true);
-					//playerFeet.setFriction(0.0f);
-					//player.dustParticles.allowCompletion();
+					if (player.animation != player.isJumping)
+						player.setAnimation(player.isJumping);
+					player.velocity.y = MathUtils.clamp(player.velocity.y, -9.81f, 9.81f);
+				} else if (player.hasFrogPowerup)
+				{
+					player.setJumping(true);
 					if (player.animation != player.isJumping)
 						player.setAnimation(player.isJumping);
 					player.velocity.y = MathUtils.clamp(player.velocity.y, -9.81f, 9.81f);
@@ -584,8 +432,8 @@ public class WorldController extends InputAdapter implements Disposable
 			// set physical attributes
 			FixtureDef fixtureDef = new FixtureDef();
 			fixtureDef.shape = polygonShape;
-			fixtureDef.density = 1;
-			fixtureDef.friction = 0.2f;
+			fixtureDef.density = 0.5f;
+			fixtureDef.friction = 0.0f;
 			body.createFixture(fixtureDef);
 			polygonShape.dispose();
 			// finally, add new deadBird to list for updating/rendering
@@ -615,8 +463,8 @@ public class WorldController extends InputAdapter implements Disposable
 			// set physical attributes
 			FixtureDef fixtureDef = new FixtureDef();
 			fixtureDef.shape = polygonShape;
-			fixtureDef.density = 1;
-			fixtureDef.friction = 0.2f;
+			fixtureDef.density = 0.5f;
+			fixtureDef.friction = 0.0f;
 			body.createFixture(fixtureDef);
 			polygonShape.dispose();
 			// finally, add new deadFrog to list for updating/rendering
@@ -664,7 +512,7 @@ public class WorldController extends InputAdapter implements Disposable
 		// rocks
 		for (Rock rock : level.rocks)
 		{
-			createBody(rock, BodyType.StaticBody, 1000, 0.2f, false);
+			createBody(rock, BodyType.StaticBody, 1000, 0.5f, false);
 		}
 		// birds
 		for (Bird bird : level.birds)
@@ -715,14 +563,14 @@ public class WorldController extends InputAdapter implements Disposable
 		FixtureDef playerFixture = new FixtureDef();
 		playerFixture.shape = playerShape;
 		playerFixture.density = 10;
-		playerFixture.friction = 0.1f;
+		playerFixture.friction = 0.2f;
 		body.createFixture(playerFixture);
 		// foot sensor
 		playerOrigin.y = playerOrigin.y - (player.bounds.height / 2);
 		playerShape.setAsBox(player.bounds.width / 6, player.bounds.height / 24, playerOrigin, 0);
 		playerFixture.shape = playerShape;
 		playerFixture.isSensor = true;
-		playerFixture.friction = 0.0f;
+		playerFixture.friction = 0.3f;
 		playerFeet = body.createFixture(playerFixture);
 
 		playerShape.dispose();

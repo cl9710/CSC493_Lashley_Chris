@@ -1,7 +1,6 @@
 package com.lashleygdx.game.util;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -68,8 +67,6 @@ public class CollisionHandler implements ContactListener
 			}
 		}
 
-		//Gdx.app.log("CollisionHandler-begin A", "begin");
-
 		processContact(contact);
 
 		ContactListener listener = getListener(fixtureA.getFilterData().categoryBits, fixtureB.getFilterData().categoryBits);
@@ -117,7 +114,7 @@ public class CollisionHandler implements ContactListener
 			{
 				world.player.jumpState = JUMP_STATE.FALLING;
 				world.player.dustParticles.allowCompletion();
-				Gdx.app.log("grounded", "end");
+//				Gdx.app.log("grounded", "end");
 			}
 		}
 		else if (objB instanceof Cat)
@@ -126,14 +123,10 @@ public class CollisionHandler implements ContactListener
 			{
 				world.player.jumpState = JUMP_STATE.FALLING;
 				world.player.dustParticles.allowCompletion();
-				Gdx.app.log("grounded", "end");
+//				Gdx.app.log("grounded", "end");
 			}
 		}
-		// Gdx.app.log("CollisionHandler-end A", "end");
-		// processContact(contact);
 
-		// Gdx.app.log("CollisionHandler-end A", fixtureA.getBody().getLinearVelocity().x+" : "+fixtureA.getBody().getLinearVelocity().y);
-		// Gdx.app.log("CollisionHandler-end B", fixtureB.getBody().getLinearVelocity().x+" : "+fixtureB.getBody().getLinearVelocity().y);
 		ContactListener listener = getListener(fixtureA.getFilterData().categoryBits, fixtureB.getFilterData().categoryBits);
 		if (listener != null)
 		{
@@ -181,12 +174,7 @@ public class CollisionHandler implements ContactListener
 
 	private void processPlayerContact(Fixture playerFixture, Fixture objFixture)
 	{
-		if (objFixture.getBody().getUserData() instanceof Rock)
-		{
-			Cat player = (Cat)playerFixture.getBody().getUserData();
-			Rock rock = (Rock)objFixture.getBody().getUserData();
-		}
-		else if (objFixture.getBody().getUserData() instanceof Bird)
+		if (objFixture.getBody().getUserData() instanceof Bird)
 		{
 			// Remove the bird, grant player bloodlust, update the player's bird score by 1.
 			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
@@ -214,7 +202,6 @@ public class CollisionHandler implements ContactListener
 		{
 			// Remove the bird update the player's score by 1.
 			AudioManager.instance.play(Assets.instance.sounds.deathExplosion);
-			Dog dog = (Dog)objFixture.getBody().getUserData();
 			if (!world.isGameOver())
 				if (!world.player.dead)
 				{

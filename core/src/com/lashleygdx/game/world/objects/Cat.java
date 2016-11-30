@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.lashleygdx.game.util.Constants;
 import com.lashleygdx.game.world.Assets;
-//import com.lashleygdx.game.world.objects.Cat.JUMP_STATE;
 import com.lashleygdx.game.util.AudioManager;
 import com.lashleygdx.game.util.CharacterSkin;
 import com.lashleygdx.game.util.GamePreferences;
@@ -88,8 +87,6 @@ public class Cat extends AbstractGameObject
 		bounds.set(0, 0, dimension.x, dimension.y);
 		// set physics values
 		terminalVelocity.set(3.0f, 4.0f);
-//		friction.set(12.0f, 0.0f);
-//		acceleration.set(0.0f, -25.0f);
 		// view direction
 		viewDirection = VIEW_DIRECTION.RIGHT;
 		// jump state
@@ -190,12 +187,6 @@ public class Cat extends AbstractGameObject
 	public void update (float deltaTime)
 	{
 		super.update(deltaTime);
-//		if (body != null)
-//		{
-			// Gdx.app.log(TAG, "velY: "+velocity.y+" state: "+jumpState);
-//			body.setTransform(position, 0);
-//			body.setLinearVelocity(velocity);
-//		}
 		if (!dead)
 		{
 			if (velocity.x != 0)
@@ -214,9 +205,6 @@ public class Cat extends AbstractGameObject
 							setAnimation(isRunning);
 				}
 			}
-//			if (velocity.y > 0 && jumpState != JUMP_STATE.JUMP_FALLING)
-//				if (animation != isJumping)
-//					setAnimation(isJumping);
 			if (jumpState == JUMP_STATE.JUMP_RISING)
 			{
 				if (animation != isJumping)
@@ -356,6 +344,10 @@ public class Cat extends AbstractGameObject
 		else
 			velocity.set(0, 0);
 		acceleration.set(0, 0);
+		setAnimation(isIdle);
+		hasBloodlust = false;
+		hasFrogPowerup = false;
+
 	}
 
 	/**
