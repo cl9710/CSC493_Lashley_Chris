@@ -46,6 +46,7 @@ public class MenuScreen extends AbstractGameScreen
 	private Image imgBirds;
 	private Image imgKitty;
 	private Button btnMenuPlay;
+	private Button btnMenuScores;
 	private Button btnMenuOptions;
 
 	// options
@@ -59,6 +60,10 @@ public class MenuScreen extends AbstractGameScreen
 	private SelectBox<CharacterSkin> selCharSkin;
 	private Image imgCharSkin;
 	private CheckBox chkShowFpsCounter;
+
+	// high score list
+	private Window winScores;
+	private TextButton btnClose;
 
 	// debug
 	private final float DEBUG_REBUILD_INTERVAL = 5.0f;
@@ -152,6 +157,7 @@ public class MenuScreen extends AbstractGameScreen
 		Table layerObjects = buildObjectsLayer();
 		Table layerLogos = buildLogosLayer();
 		Table layerControls = buildControlsLayer();
+		Table layerScoreList = buildHighScoreWindowLayer();
 		Table layerOptionsWindow = buildOptionsWindowLayer();
 
 		// assemble stage for menu screen
@@ -163,6 +169,7 @@ public class MenuScreen extends AbstractGameScreen
 		stack.add(layerObjects);
 		stack.add(layerLogos);
 		stack.add(layerControls);
+		stage.addActor(layerScoreList);
 		stage.addActor(layerOptionsWindow);
 	}
 
@@ -236,6 +243,18 @@ public class MenuScreen extends AbstractGameScreen
 			}
 		});
 		layer.row();
+		// + high score list button
+		btnMenuScores = new Button(skinMurderKitty, "scores");
+		layer.add(btnMenuScores);
+		btnMenuScores.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed (ChangeEvent event, Actor actor)
+			{
+				onScoresClicked();
+			}
+		});
+		layer.row();
 		// + options button
 		btnMenuOptions = new Button(skinMurderKitty, "options");
 		layer.add(btnMenuOptions);
@@ -280,11 +299,46 @@ public class MenuScreen extends AbstractGameScreen
 	}
 
 	/**
+	 * main menu high score list layer
+	 * @return winScore
+	 */
+	private Table buildHighScoreWindowLayer()
+	{
+		winScores = new Window("High Scores", skinLibgdx);
+
+		// + separator and button (close)
+		winScores.add(buildScoreWinButton()).pad(10, 0, 10, 0);
+
+		// make options window slightly transparent
+		winScores.setColor(1, 1, 1, 0.8f);
+		// hide options window by default
+		winScores.setVisible(false);
+		if (debugEnabled) winScores.debug();
+		// let tablelayout recalculate widget sizes and positions
+		winScores.pack();
+		// move options window to bottom right corner
+		winScores.setPosition(Constants.VIEWPORT_GUI_WIDTH - winScores.getWidth() - 50, 50);
+		return winScores;
+	}
+
+	/**
 	 * start game when play button clicked
 	 */
 	private void onPlayClicked()
 	{
 		game.setScreen(new GameScreen(game));
+	}
+
+	/**
+	 * open high score list when scores button clicked
+	 */
+	private void onScoresClicked()
+	{
+		loadSettings();
+		btnMenuPlay.setVisible(false);
+		btnMenuScores.setVisible(false);
+		btnMenuOptions.setVisible(false);
+		winScores.setVisible(true);
 	}
 
 	/**
@@ -294,6 +348,7 @@ public class MenuScreen extends AbstractGameScreen
 	{
 		loadSettings();
 		btnMenuPlay.setVisible(false);
+		btnMenuScores.setVisible(false);
 		btnMenuOptions.setVisible(false);
 		winOptions.setVisible(true);
 	}
@@ -346,7 +401,6 @@ public class MenuScreen extends AbstractGameScreen
 	{
 		saveSettings();
 		onCancelClicked();
-		AudioManager.instance.onSettingsUpdated();
 	}
 
 	/**
@@ -355,9 +409,21 @@ public class MenuScreen extends AbstractGameScreen
 	private void onCancelClicked()
 	{
 		btnMenuPlay.setVisible(true);
+		btnMenuScores.setVisible(true);
 		btnMenuOptions.setVisible(true);
 		winOptions.setVisible(false);
 		AudioManager.instance.onSettingsUpdated();
+	}
+
+	/**
+	 * close options menu without saving
+	 */
+	private void onCloseClicked()
+	{
+		btnMenuPlay.setVisible(true);
+		btnMenuScores.setVisible(true);
+		btnMenuOptions.setVisible(true);
+		winScores.setVisible(false);
 	}
 
 	/**
@@ -482,6 +548,41 @@ public class MenuScreen extends AbstractGameScreen
 			public void changed(ChangeEvent event, Actor actor)
 			{
 				onCancelClicked();
+			}
+		});
+		return tbl;
+	}
+
+	/**
+	 * construct high score list close button
+	 * @return tbl
+	 */
+	private Table buildScoreWinButton()
+	{
+		Table tbl = new Table();
+		// + Separator
+		Label lbl = null;
+		lbl = new Label("", skinLibgdx);
+		lbl.setColor(0.75f, 0.75f, 0.75f, 1);
+		lbl.setStyle(new LabelStyle(lbl.getStyle()));
+		lbl.getStyle().background = skinLibgdx.newDrawable("white");
+		tbl.add(lbl).colspan(2).height(1).width(220).pad(0, 0, 0, 1);
+		tbl.row();
+		lbl = new Label("", skinLibgdx);
+		lbl.setColor(0.5f, 0.5f, 0.5f, 1);
+		lbl.setStyle(new LabelStyle(lbl.getStyle()));
+		lbl.getStyle().background = skinLibgdx.newDrawable("white");
+		tbl.add(lbl).colspan(2).height(1).width(220).pad(0, 1, 5, 0);
+		tbl.row();
+		// + save button with event handler
+		btnClose = new TextButton("Close", skinLibgdx);
+		tbl.add(btnClose).padRight(30);
+		btnClose.addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ChangeEvent event, Actor actor)
+			{
+				onCloseClicked();
 			}
 		});
 		return tbl;

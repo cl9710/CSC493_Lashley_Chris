@@ -242,7 +242,7 @@ public class Assets implements Disposable, AssetErrorListener
 
 			// fall
 			regions = atlas.findRegions("Fall");
-			isFalling = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.NORMAL);
+			isFalling = new Animation(1.0f / 10.0f, regions, Animation.PlayMode.LOOP);
 
 			// idle
 			regions = atlas.findRegions("Idle");

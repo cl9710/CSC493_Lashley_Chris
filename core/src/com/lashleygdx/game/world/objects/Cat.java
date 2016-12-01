@@ -36,7 +36,7 @@ public class Cat extends AbstractGameObject
 
 	// animations
 	private Animation isDead;
-//	private Animation isFalling;
+	private Animation isFalling;
 	private Animation isIdle;
 	public Animation isJumping;
 	private Animation isRunning;
@@ -73,7 +73,7 @@ public class Cat extends AbstractGameObject
 		dimension.set(1, 1);
 
 		isDead = Assets.instance.cat.isDead;
-//		isFalling = Assets.instance.cat.isFalling;
+		isFalling = Assets.instance.cat.isFalling;
 		isIdle = Assets.instance.cat.isIdle;
 		isJumping = Assets.instance.cat.isJumping;
 		isRunning = Assets.instance.cat.isRunning;
@@ -117,11 +117,11 @@ public class Cat extends AbstractGameObject
 				// start jump time
 				timeJumping = 0;
 				jumpState = JUMP_STATE.JUMP_RISING;
-				if (animation != isJumping)
-					setAnimation(isJumping);
 			}
 			break;
 		case JUMP_RISING:	// rising in the air
+			if (animation != isJumping)
+				setAnimation(isJumping);
 			if (!jumpKeyPressed)
 				jumpState = JUMP_STATE.FALLING;
 			break;
@@ -132,6 +132,7 @@ public class Cat extends AbstractGameObject
 				AudioManager.instance.play(Assets.instance.sounds.jumpWithFrog, 1, MathUtils.random(1.0f, 1.1f));
 				timeJumping = JUMP_TIME_OFFSET_FLYING;
 				jumpState = JUMP_STATE.JUMP_RISING;
+				setAnimation(isJumping);
 			}
 			break;
 		}
@@ -194,7 +195,7 @@ public class Cat extends AbstractGameObject
 				if (jumpState == JUMP_STATE.GROUNDED)
 					dustParticles.start();
 				viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT : VIEW_DIRECTION.RIGHT;
-				if (jumpState != JUMP_STATE.JUMP_RISING)
+				if (jumpState == JUMP_STATE.GROUNDED)
 				{
 					if (!hasBloodlust)
 					{
@@ -210,6 +211,11 @@ public class Cat extends AbstractGameObject
 				if (animation != isJumping)
 					setAnimation(isJumping);
 				body.setLinearVelocity(velocity.x, 8f);
+			}
+			if (jumpState == JUMP_STATE.JUMP_FALLING)
+			{
+				if (animation != isFalling)
+					setAnimation(isFalling);
 			}
 			if (velocity.x == 0 && velocity.y == 0)
 			{
@@ -261,7 +267,6 @@ public class Cat extends AbstractGameObject
 			if (velocity.x != 0)
 			{
 				dustParticles.setPosition(position.x + dimension.x / 2,  position.y);
-				//dustParticles.start();
 			}
 			break;
 		case JUMP_RISING:

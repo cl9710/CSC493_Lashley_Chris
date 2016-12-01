@@ -6,64 +6,84 @@ filter: Nearest,Nearest
 repeat: none
 background
   rotate: false
-  xy: 2, 482
+  xy: 2, 513
   size: 801, 481
   orig: 801, 481
   offset: 0, 0
   index: -1
 birds
   rotate: false
-  xy: 273, 123
+  xy: 2, 154
   size: 510, 357
   orig: 510, 357
   offset: 0, 0
   index: -1
-info
-  rotate: false
-  xy: 615, 39
-  size: 329, 82
-  orig: 329, 82
-  offset: 0, 0
-  index: -1
 kitty
   rotate: false
-  xy: 2, 12
+  xy: 514, 43
   size: 269, 468
   orig: 269, 468
   offset: 0, 0
   index: -1
 logo
   rotate: false
-  xy: 273, 2
+  xy: 2, 33
   size: 340, 119
   orig: 340, 119
   offset: 0, 0
   index: -1
 options-dn
   rotate: false
-  xy: 805, 813
+  xy: 805, 844
   size: 150, 150
   orig: 150, 150
   offset: 0, 0
   index: -1
 options-up
   rotate: false
-  xy: 805, 661
+  xy: 805, 692
   size: 150, 150
   orig: 150, 150
   offset: 0, 0
   index: -1
 play-dn
   rotate: false
-  xy: 805, 509
+  xy: 805, 540
   size: 150, 150
   orig: 150, 150
   offset: 0, 0
   index: -1
 play-up
   rotate: false
-  xy: 805, 357
+  xy: 344, 2
   size: 150, 150
   orig: 150, 150
+  offset: 0, 0
+  index: -1
+scores-dn
+  rotate: false
+  xy: 805, 388
+  size: 150, 150
+  orig: 150, 150
+  offset: 0, 0
+  index: -1
+scores-up
+  rotate: false
+  xy: 785, 236
+  size: 150, 150
+  orig: 150, 150
+  offset: 0, 0
+  index: -1
+
+murderkitty-ui.pack2.png
+size: 512,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+info
+  rotate: false
+  xy: 2, 2
+  size: 329, 82
+  orig: 329, 82
   offset: 0, 0
   index: -1
