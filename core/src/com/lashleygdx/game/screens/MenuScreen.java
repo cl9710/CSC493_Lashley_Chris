@@ -62,8 +62,15 @@ public class MenuScreen extends AbstractGameScreen
 	private CheckBox chkShowFpsCounter;
 
 	// high score list
+	private GamePreferences prefs = GamePreferences.instance;
+	public int[] highScores = new int[Constants.MAX_SCORES];
 	private Window winScores;
 	private TextButton btnClose;
+//	public int first;
+//	public int second;
+//	public int third;
+//	public int fourth;
+//	public int fifth;
 
 	// debug
 	private final float DEBUG_REBUILD_INTERVAL = 5.0f;
@@ -305,10 +312,10 @@ public class MenuScreen extends AbstractGameScreen
 	private Table buildHighScoreWindowLayer()
 	{
 		winScores = new Window("High Scores", skinLibgdx);
-
+		// add the table populated with high scores to the window
+		winScores.add(buildScoreTable()).row();
 		// + separator and button (close)
 		winScores.add(buildScoreWinButton()).pad(10, 0, 10, 0);
-
 		// make options window slightly transparent
 		winScores.setColor(1, 1, 1, 0.8f);
 		// hide options window by default
@@ -334,7 +341,7 @@ public class MenuScreen extends AbstractGameScreen
 	 */
 	private void onScoresClicked()
 	{
-		loadSettings();
+		loadScores();
 		btnMenuPlay.setVisible(false);
 		btnMenuScores.setVisible(false);
 		btnMenuOptions.setVisible(false);
@@ -353,12 +360,21 @@ public class MenuScreen extends AbstractGameScreen
 		winOptions.setVisible(true);
 	}
 
+	public void loadScores()
+	{
+		prefs.loadHighScores();
+		highScores[0] = prefs.highScore[0];
+		highScores[1] = prefs.highScore[1];
+		highScores[2] = prefs.highScore[2];
+		highScores[3] = prefs.highScore[3];
+		highScores[4] = prefs.highScore[4];
+	}
+
 	/**
 	 * populate options menu with current settings when opened
 	 */
 	private void loadSettings()
 	{
-		GamePreferences prefs = GamePreferences.instance;
 		prefs.load();
 		chkSound.setChecked(prefs.sound);
 		sldSound.setValue(prefs.volSound);
@@ -374,7 +390,6 @@ public class MenuScreen extends AbstractGameScreen
 	 */
 	private void saveSettings()
 	{
-		GamePreferences prefs = GamePreferences.instance;
 		prefs.sound = chkSound.isChecked();
 		prefs.volSound = sldSound.getValue();
 		prefs.music = chkMusic.isChecked();
@@ -416,10 +431,11 @@ public class MenuScreen extends AbstractGameScreen
 	}
 
 	/**
-	 * close options menu without saving
+	 * close high score menu and save current high scores
 	 */
 	private void onCloseClicked()
 	{
+		prefs.saveHighScores();
 		btnMenuPlay.setVisible(true);
 		btnMenuScores.setVisible(true);
 		btnMenuOptions.setVisible(true);
@@ -566,17 +582,17 @@ public class MenuScreen extends AbstractGameScreen
 		lbl.setColor(0.75f, 0.75f, 0.75f, 1);
 		lbl.setStyle(new LabelStyle(lbl.getStyle()));
 		lbl.getStyle().background = skinLibgdx.newDrawable("white");
-		tbl.add(lbl).colspan(2).height(1).width(220).pad(0, 0, 0, 1);
+		tbl.add(lbl).colspan(1).height(1).width(220).pad(0, 0, 0, 1);
 		tbl.row();
 		lbl = new Label("", skinLibgdx);
 		lbl.setColor(0.5f, 0.5f, 0.5f, 1);
 		lbl.setStyle(new LabelStyle(lbl.getStyle()));
 		lbl.getStyle().background = skinLibgdx.newDrawable("white");
-		tbl.add(lbl).colspan(2).height(1).width(220).pad(0, 1, 5, 0);
+		tbl.add(lbl).colspan(1).height(1).width(220).pad(0, 1, 5, 0);
 		tbl.row();
 		// + save button with event handler
 		btnClose = new TextButton("Close", skinLibgdx);
-		tbl.add(btnClose).padRight(30);
+		tbl.add(btnClose);
 		btnClose.addListener(new ChangeListener()
 		{
 			@Override
@@ -585,6 +601,30 @@ public class MenuScreen extends AbstractGameScreen
 				onCloseClicked();
 			}
 		});
+		return tbl;
+	}
+
+	/**
+	 * construct menu score table
+	 * @return tbl
+	 */
+	private Table buildScoreTable()
+	{
+		prefs.loadHighScores();
+		highScores[0] = prefs.highScore[0];
+		highScores[1] = prefs.highScore[1];
+		highScores[2] = prefs.highScore[2];
+		highScores[3] = prefs.highScore[3];
+		highScores[4] = prefs.highScore[4];
+		String score;
+		Table tbl = new Table();
+		tbl.pad(10, 10, 0, 10);
+		for (int i = 0; i < Constants.MAX_SCORES; i++)
+		{
+			score = highScores[i] + "\n";
+			tbl.add(new Label(score, skinLibgdx, "default-font", Color.ORANGE)).colspan(2);
+			tbl.row();
+		}
 		return tbl;
 	}
 }

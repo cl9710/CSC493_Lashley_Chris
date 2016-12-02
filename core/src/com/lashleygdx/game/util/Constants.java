@@ -60,7 +60,7 @@ public class Constants
 	public static final String SKIN_MURDERKITTY_UI = "images/murderkitty-ui.json";
 
 	// preferences saved location
-	public static final String PREFERENCES = "game.prefs";
+	public static final String PREFERENCES = "murderkitty.prefs";
 
 	// spawn radius for carrots
 	public static final float BIRDS_SPAWN_RADIUS = 2;
@@ -73,4 +73,7 @@ public class Constants
 
 	// number of levels
 	public static final float NUM_LEVELS = 2;
+
+	// number of high scores
+	public static final int MAX_SCORES = 5;
 }

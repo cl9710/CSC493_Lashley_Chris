@@ -2,6 +2,7 @@ package com.lashleygdx.game.world;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+
 import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -9,6 +10,8 @@ import com.badlogic.gdx.InputAdapter;
 import com.lashleygdx.game.util.CameraHelper;
 import com.lashleygdx.game.util.CollisionHandler;
 import com.lashleygdx.game.util.Constants;
+import com.lashleygdx.game.util.GamePreferences;
+//import com.lashleygdx.game.util.HighScores;
 import com.lashleygdx.game.world.objects.Cat;
 import com.lashleygdx.game.world.objects.Frog;
 import com.lashleygdx.game.world.objects.House;
@@ -61,6 +64,11 @@ public class WorldController extends InputAdapter implements Disposable
 	public Array<AbstractGameObject> objectsToRemove;
 	public Fixture playerFeet;
 
+	// score
+	GamePreferences prefs = GamePreferences.instance;
+	public int currentScore;
+	public int[] highScores = new int[Constants.MAX_SCORES];
+
 	/**
 	 * initialize a level
 	 */
@@ -97,6 +105,13 @@ public class WorldController extends InputAdapter implements Disposable
 		lives = Constants.LIVES_START;
 		livesVisual = lives;
 		levelNum = 0;
+		currentScore = 0;
+		prefs.loadHighScores();
+		highScores[0] = prefs.highScore[0];
+		highScores[1] = prefs.highScore[1];
+		highScores[2] = prefs.highScore[2];
+		highScores[3] = prefs.highScore[3];
+		highScores[4] = prefs.highScore[4];
 		initLevel();
 	}
 
@@ -131,14 +146,22 @@ public class WorldController extends InputAdapter implements Disposable
 		// if home reached
 		if (isVictory())
 		{
+			currentScore = currentScore + birdScore + frogScore;
+
 			timeLeftEndLevelDelay += deltaTime;
 			if (timeLeftEndLevelDelay >= Constants.TIME_DELAY_VICTORY)
 			{
 				AudioManager.instance.stopMusic();
 				if (levelNum < Constants.NUM_LEVELS)
+				{
+					if (newHighScore(currentScore))
+						addNewHighScore(currentScore);
 					initLevel();
+				}
 				else
 				{
+					if (newHighScore(currentScore))
+						addNewHighScore(currentScore);
 					backToMenu();
 				}
 			}
@@ -179,6 +202,7 @@ public class WorldController extends InputAdapter implements Disposable
 		b2world.step(deltaTime,  8,  3);
 		cameraHelper.update(deltaTime);
 		level.trees.updateScrollPosition(cameraHelper.getPosition());
+		sortScores();
 		if (livesVisual > lives)
 		{
 			livesVisual = Math.max(lives,  livesVisual - 1 * deltaTime);
@@ -398,6 +422,7 @@ public class WorldController extends InputAdapter implements Disposable
 
 	/**
 	 * make the player drop all collected birds and frogs when the goal is reached
+	 * if you are jumping when you reach the goal you will crowd surf on the bodies
 	 * @param pos
 	 * @param numBirds
 	 * @param numFrogs
@@ -634,5 +659,68 @@ public class WorldController extends InputAdapter implements Disposable
 	public void playerDied()
 	{
 		player.died();
+	}
+
+	/**
+	 * compare current score with lowest high score to see if a new high score was reached
+	 * @param currentScore
+	 * @return true if new high score
+	 */
+	public boolean newHighScore(int currentScore)
+	{
+		return currentScore > prefs.highScore[Constants.MAX_SCORES - 1];
+	}
+
+	/**
+	 * add a new high score to the list of high scores and sort the list
+	 * also saves the list of high scores
+	 * @param currentScore
+	 */
+	public void addNewHighScore(int currentScore)
+	{
+		if (newHighScore(currentScore))
+		{
+			highScores[Constants.MAX_SCORES - 1] = currentScore;
+			sortScores();
+			prefs.highScore[0] = highScores[0];
+			prefs.highScore[1] = highScores[1];
+			prefs.highScore[2] = highScores[2];
+			prefs.highScore[3] = highScores[3];
+			prefs.highScore[4] = highScores[4];
+			prefs.saveHighScores();
+		}
+	}
+
+	/**
+	 * sorts the high score list so the highest are at the top
+	 */
+	public void sortScores()
+	{
+		int k;
+
+		for (int i = 0; i < Constants.MAX_SCORES; i++)
+		{
+			for (int j = 0; j < Constants.MAX_SCORES - 1; j++)
+			{
+				k = j + 1;
+				if (highScores[j] < highScores[k])
+				{
+					swap(j, k);
+				}
+			}
+		}
+	}
+
+	/**
+	 * swaps two high score values to be use with sorting
+	 * @param j
+	 * @param k
+	 */
+	private void swap(int j, int k)
+	{
+		int tempValue = highScores[j];
+
+		highScores[j] = highScores[k];
+		highScores[k] = tempValue;
 	}
 }

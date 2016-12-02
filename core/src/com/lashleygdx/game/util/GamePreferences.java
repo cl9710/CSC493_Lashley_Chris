@@ -3,6 +3,7 @@ package com.lashleygdx.game.util;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.math.MathUtils;
+import com.lashleygdx.game.util.*;
 
 /**
  * game preferences
@@ -20,6 +21,13 @@ public class GamePreferences
 	public float volMusic;
 	public int charSkin;
 	public boolean showFpsCounter;
+	public int[] highScore = new int[Constants.MAX_SCORES];
+	public int first;
+	public int second;
+	public int third;
+	public int fourth;
+	public int fifth;
+
 
 	private Preferences prefs;
 
@@ -29,6 +37,11 @@ public class GamePreferences
 	private GamePreferences()
 	{
 		prefs = Gdx.app.getPreferences(Constants.PREFERENCES);
+		highScore[0] = prefs.getInteger("first", 0);
+		highScore[1] = prefs.getInteger("second", 0);
+		highScore[2] =	prefs.getInteger("third", 0);
+		highScore[3] = prefs.getInteger("fourth", 0);
+		highScore[4] = prefs.getInteger("fifth", 0);
 	}
 
 	/**
@@ -56,5 +69,30 @@ public class GamePreferences
 		prefs.putInteger("charSkin", charSkin);
 		prefs.putBoolean("showFpsCounter",  showFpsCounter);
 		prefs.flush();
+	}
+
+	/**
+	 * save high scores
+	 */
+	public void saveHighScores()
+	{
+		prefs.putInteger("first", highScore[0]);
+		prefs.putInteger("second", highScore[1]);
+		prefs.putInteger("third", highScore[2]);
+		prefs.putInteger("fourth", highScore[3]);
+		prefs.putInteger("fifth", highScore[4]);
+		prefs.flush();
+	}
+
+	/**
+	 * load high scores
+	 */
+	public void loadHighScores()
+	{
+		highScore[0] = 	prefs.getInteger("first",0);
+		highScore[1] = 	prefs.getInteger("second", 0);
+		highScore[2] = 	prefs.getInteger("third", 0);
+		highScore[3] = 	prefs.getInteger("fourth", 0);
+		highScore[4] = 	prefs.getInteger("fifth[4]", 0);
 	}
 }
