@@ -146,11 +146,10 @@ public class WorldController extends InputAdapter implements Disposable
 		// if home reached
 		if (isVictory())
 		{
-			currentScore = currentScore + birdScore + frogScore;
-
 			timeLeftEndLevelDelay += deltaTime;
 			if (timeLeftEndLevelDelay >= Constants.TIME_DELAY_VICTORY)
 			{
+				currentScore = currentScore + birdScore + frogScore;
 				AudioManager.instance.stopMusic();
 				if (levelNum < Constants.NUM_LEVELS)
 				{
